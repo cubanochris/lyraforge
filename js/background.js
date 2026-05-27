@@ -20,10 +20,16 @@
 
   const DPR = Math.min(window.devicePixelRatio || 1, 2);
   let W = 0, H = 0, tick = 0, edgeAge = 0;
+  let resizeTimer, lastResizeW = 0;
 
   // ── Resize ─────────────────────────────────────────────────────────
   function resize() {
-    W = window.innerWidth; H = window.innerHeight;
+    const newW = window.innerWidth;
+    const newH = window.innerHeight;
+    // Ignore height-only changes under 160px — mobile address bar show/hide
+    if (newW === lastResizeW && Math.abs(newH - H) < 160) return;
+    lastResizeW = newW;
+    W = newW; H = newH;
     ALL.forEach(c => {
       c.width = W * DPR; c.height = H * DPR;
       c.style.width = W + 'px'; c.style.height = H + 'px';
@@ -32,7 +38,10 @@
     drawBase();
     initStars(); initNebulae(); initNetwork(); initParticles();
   }
-  window.addEventListener('resize', resize);
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 120);
+  });
 
   // ════════════════════════════════════════════════════════════════════
   // LAYER 1 — BASE GRADIENT (drawn once)
