@@ -1,0 +1,30 @@
+// Call script templates stored in database
+model CallScript {
+  id          String   @id @default(cuid())
+  businessId  String
+  name        String
+  description String?
+  goals       String[] // JSON array of goal IDs: ["book_appointment", "qualify_lead"]
+  tone        String   @default("professional")
+  scriptJson  String   @db.Text // Full generated script as JSON
+  isActive    Boolean  @default(true)
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  business Business @relation(fields: [businessId], references: [id])
+  
+  @@index([businessId])
+}
+
+// Track which scripts are used for each call
+model CallScriptUsage {
+  id          String   @id @default(cuid())
+  callId      String   // Links to VoiceCall.id
+  scriptId    String
+  variant     String?  // For A/B testing: "A1", "A2"
+  outcome     String?  // "appointment_booked", "lead_qualified", etc.
+  createdAt   DateTime @default(now())
+  
+  @@unique([callId, scriptId])
+}

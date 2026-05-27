@@ -1,0 +1,16 @@
+node_modules/
+.env
+*.db
+*.db-journal
+*.log
+.npm-cache/
+components/
+JavaScript/
+start.bat
+Sample_script.json
+Summary.png
+VoiceCallModelinfo.txt
+cURLrequest.txt
+devserver.*
+app.stderr.*
+app.stdout.*
