@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Talk to a real LyraForge AI receptionist — book an appointment, ask a question, or explore what your customers will experience.">
+  <title>Live Demo — LyraForge AI Receptionist</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Raleway:wght@200;300;400;600&display=swap" rel="stylesheet">
+
+  <!-- Retell AI Widget -->
+  <script
+    id="retell-widget"
+    src="https://dashboard.retellai.com/retell-widget-v2.js"
+    data-public-key="public_key_90bafc35a99fe27fc4ad3"
+    data-agent-id="agent_be3a96fad5cab141b27a9b61c6"
+    data-agent-version="latest"
+    data-title="LyraForge AI Receptionist"
+    data-color="#00d4ff"
+    data-theme-color="#010918"
+    data-component-color="#020e22"
+    data-fab-text="Talk to LyraForge"
+    data-bot-name="LyraForge"
+    data-popup-message="Hey! I'm your AI receptionist. Try asking me to book an appointment!"
+    data-show-ai-popup="true"
+    data-show-ai-popup-time="3"
+  ></script>
+
+  <style>
+    /* ── Tokens (mirrored from main site) ─────────────────────────── */
+    :root {
+      --c-black:   #000308;
+      --c-navy0:   #010918;
+      --c-navy1:   #020e22;
+      --c-glass:   rgba(4,18,46,0.62);
+      --c-cyan:    #00d4ff;
+      --c-teal:    #00f5c4;
+      --c-amber:   #f59e0b;
+      --c-orange:  #f97316;
+      --c-green:   #4ade80;
+      --c-text:    rgba(255,255,255,0.97);
+      --c-muted:   rgba(200,230,255,0.82);
+      --c-dim:     rgba(170,205,235,0.68);
+      --c-border:  rgba(0,200,255,0.09);
+      --c-border2: rgba(0,200,255,0.28);
+      --g-brand:   linear-gradient(90deg,#f97316 0%,#f59e0b 22%,#fff 45%,#00d4ff 65%,#7c3aed 88%,#a855f7 100%);
+      --g-warm:    linear-gradient(135deg,#f97316,#eab308);
+      --g-cool:    linear-gradient(135deg,#00d4ff,#7c3aed);
+      --font-display: 'Cormorant Garamond','Times New Roman',serif;
+      --font-body:    'Raleway',sans-serif;
+      --font-accent:  'Cinzel',serif;
+      --r-full: 9999px;
+      --r-card: 2rem;
+      --r-md:   14px;
+      --ease-smooth: cubic-bezier(0.4,0,0.2,1);
+      --ease-spring: cubic-bezier(0.34,1.56,0.64,1);
+      --ease-fluid:  cubic-bezier(0.32,0.72,0,1);
+    }
+
+    /* ── Reset ──────────────────────────────────────────────────────── */
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;scroll-padding-top:100px}
+    body{font-family:var(--font-body);background:var(--c-black);color:var(--c-text);overflow-x:hidden;line-height:1.65}
+    a{text-decoration:none;color:inherit}
+    ul{list-style:none}
+
+    /* ── Canvas background (same 6-layer system) ────────────────────── */
+    #bg-root{position:fixed;inset:0;z-index:0;pointer-events:none}
+    #bg-root canvas{position:absolute;inset:0;width:100%;height:100%}
+    #img-blend{display:none}
+    .page{position:relative;z-index:2}
+    .section-overlay{position:absolute;inset:0;background:rgba(1,8,22,.68);pointer-events:none}
+
+    /* ── Nav ────────────────────────────────────────────────────────── */
+    .nav{
+      position:fixed;top:1.5rem;left:50%;transform:translateX(-50%);
+      z-index:100;display:flex;align-items:center;gap:1rem;
+      padding:.55rem .65rem .55rem 1.2rem;
+      border-radius:var(--r-full);
+      background:rgba(2,9,24,.82);
+      backdrop-filter:blur(24px) saturate(1.6);
+      border:1px solid rgba(0,200,255,.18);
+      box-shadow:0 4px 32px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.05);
+      width:max-content;max-width:calc(100vw - 3rem);
+    }
+    .nav-logo{
+      display:flex;align-items:center;gap:.5rem;
+      font-family:var(--font-display);font-size:1.65rem;font-weight:700;letter-spacing:.04em;
+      background:var(--g-brand);background-size:200% 100%;
+      -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+      flex-shrink:0;
+    }
+    .nav-logo img{width:36px;height:36px;object-fit:contain;flex-shrink:0;mix-blend-mode:screen}
+    .live-pill{
+      display:inline-flex;align-items:center;gap:.4rem;
+      padding:.3rem .9rem;border-radius:var(--r-full);
+      background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.28);
+      font-size:.68rem;font-weight:400;letter-spacing:.22em;text-transform:uppercase;
+      color:var(--c-green);flex-shrink:0;white-space:nowrap;
+    }
+    .live-dot{
+      width:6px;height:6px;border-radius:50%;background:var(--c-green);
+      box-shadow:0 0 6px var(--c-green);
+      animation:livePulse 1.6s ease-in-out infinite;
+    }
+    @keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+    .back-link{
+      display:inline-flex;align-items:center;gap:.35rem;
+      font-size:.72rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;
+      color:var(--c-muted);padding:.5rem .9rem;border-radius:var(--r-full);
+      border:1px solid var(--c-border);transition:color .3s var(--ease-smooth),border-color .3s;
+      white-space:nowrap;
+    }
+    .back-link:hover{color:var(--c-cyan);border-color:var(--c-border2)}
+
+    /* ── Hero ───────────────────────────────────────────────────────── */
+    .hero{
+      padding:calc(6rem + 80px) clamp(1.5rem,5vw,6rem) 4rem;
+      text-align:center;position:relative;
+    }
+    .hero-eyebrow{
+      display:inline-flex;align-items:center;gap:.5rem;
+      padding:.35rem 1rem;border-radius:var(--r-full);
+      border:1px solid rgba(0,212,255,.35);background:rgba(0,212,255,.07);
+      font-size:.72rem;font-weight:400;letter-spacing:.28em;text-transform:uppercase;
+      color:var(--c-cyan);margin-bottom:1.5rem;
+    }
+    .hero-eyebrow-dot{
+      width:5px;height:5px;border-radius:50%;background:var(--c-cyan);
+      box-shadow:0 0 8px var(--c-cyan);animation:livePulse 2s ease-in-out infinite;
+    }
+    .hero h1{
+      font-family:var(--font-display);
+      font-size:clamp(2.6rem,5vw,4.8rem);
+      font-weight:700;line-height:1.08;letter-spacing:-.01em;
+      margin-bottom:1.5rem;text-shadow:0 2px 32px rgba(0,0,0,.8);
+    }
+    .hero h1 .line-warm{
+      background:var(--g-warm);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:block;
+    }
+    .hero h1 .line-cool{
+      background:linear-gradient(90deg,#fff 0%,#00d4ff 50%,#7c3aed 100%);
+      -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+      display:block;font-style:italic;
+    }
+    .hero-sub{
+      font-size:clamp(.9rem,1.6vw,1.08rem);font-weight:300;line-height:1.85;
+      color:var(--c-muted);max-width:560px;margin:0 auto;
+    }
+
+    /* ── Demo stage ─────────────────────────────────────────────────── */
+    .demo-stage{
+      padding:2rem clamp(1.5rem,5vw,6rem) 6rem;
+      position:relative;
+    }
+    .demo-grid{
+      max-width:1160px;margin:0 auto;
+      display:grid;grid-template-columns:1fr 400px;gap:2rem;align-items:start;
+    }
+
+    /* Instructions panel */
+    .instructions{
+      background:rgba(4,18,46,.72);border:1px solid var(--c-border2);
+      border-radius:var(--r-card);padding:2.5rem;
+      backdrop-filter:blur(20px);
+    }
+    .panel-eyebrow{
+      font-size:.68rem;font-weight:400;letter-spacing:.38em;text-transform:uppercase;
+      color:var(--c-amber);margin-bottom:1.5rem;
+      text-shadow:0 0 16px rgba(245,158,11,.35);
+    }
+    .step-list{display:flex;flex-direction:column;gap:1.4rem;margin-bottom:2.5rem}
+    .step{display:flex;gap:1rem;align-items:flex-start}
+    .step-num{
+      width:30px;height:30px;border-radius:8px;flex-shrink:0;
+      background:var(--g-warm);display:flex;align-items:center;justify-content:center;
+      font-family:var(--font-accent);font-size:.78rem;font-weight:600;color:#080400;
+      box-shadow:0 0 14px rgba(245,158,11,.3);
+    }
+    .step-body h4{
+      font-family:var(--font-accent);font-size:.88rem;letter-spacing:.06em;
+      color:var(--c-text);margin-bottom:.25rem;
+    }
+    .step-body p{font-size:.84rem;font-weight:300;line-height:1.7;color:var(--c-muted)}
+
+    .scenarios-label{
+      font-size:.68rem;font-weight:400;letter-spacing:.35em;text-transform:uppercase;
+      color:var(--c-dim);margin-bottom:.9rem;
+    }
+    .scenarios{display:flex;flex-direction:column;gap:.65rem}
+    .scenario-chip{
+      display:flex;align-items:flex-start;gap:.85rem;
+      background:rgba(0,212,255,.03);border:1px solid rgba(0,200,255,.14);
+      border-radius:var(--r-md);padding:.9rem 1rem;
+      cursor:pointer;transition:border-color .3s var(--ease-smooth),background .3s;
+      text-align:left;width:100%;font-family:var(--font-body);
+    }
+    .scenario-chip:hover{border-color:rgba(0,212,255,.38);background:rgba(0,212,255,.07)}
+    .scenario-chip svg{color:var(--c-cyan);flex-shrink:0;margin-top:2px}
+    .scenario-chip strong{
+      display:block;font-size:.88rem;font-weight:600;letter-spacing:.02em;
+      color:var(--c-text);margin-bottom:.2rem;
+    }
+    .scenario-chip span{font-size:.8rem;font-weight:300;color:var(--c-muted);line-height:1.5}
+
+    /* Widget panel */
+    .widget-wrap{position:sticky;top:6rem}
+    .widget-card{
+      background:rgba(3,10,28,.96);
+      border:1px solid rgba(0,212,255,.45);
+      border-radius:var(--r-card);overflow:hidden;
+      box-shadow:0 0 0 1px rgba(0,212,255,.1),0 0 60px rgba(0,212,255,.16),0 32px 80px rgba(0,0,0,.55);
+    }
+    .widget-card::before{
+      content:'';display:block;height:1px;
+      background:linear-gradient(90deg,transparent,rgba(0,212,255,.55),rgba(245,158,11,.3),transparent);
+    }
+    .widget-header{
+      display:flex;align-items:center;gap:.75rem;
+      padding:1.1rem 1.4rem;border-bottom:1px solid rgba(0,212,255,.22);
+      background:rgba(2,7,20,.95);
+    }
+    .widget-avatar{
+      width:36px;height:36px;border-radius:9px;flex-shrink:0;
+      background:var(--g-warm);display:flex;align-items:center;justify-content:center;
+      box-shadow:0 0 14px rgba(245,158,11,.3);
+    }
+    .widget-avatar svg{width:17px;height:17px;color:#080400}
+    .widget-name{
+      font-family:var(--font-accent);font-size:.9rem;font-weight:600;
+      color:var(--c-text);letter-spacing:.04em;
+    }
+    .widget-status{
+      display:flex;align-items:center;gap:.35rem;
+      font-size:.72rem;font-weight:300;color:var(--c-green);margin-top:2px;
+    }
+    .status-dot{
+      width:5px;height:5px;border-radius:50%;background:var(--c-green);
+      box-shadow:0 0 5px var(--c-green);animation:livePulse 1.8s ease-in-out infinite;
+    }
+    .widget-body{
+      padding:2.5rem 1.5rem 2rem;
+      display:flex;flex-direction:column;align-items:center;
+      text-align:center;gap:1.5rem;min-height:320px;
+      justify-content:center;
+    }
+    .pulse-ring{
+      width:88px;height:88px;border-radius:50%;
+      background:var(--g-warm);
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 0 0 16px rgba(245,158,11,.07),0 0 56px rgba(245,158,11,.28);
+      animation:ringPulse 3s ease-in-out infinite;
+    }
+    @keyframes ringPulse{
+      0%,100%{box-shadow:0 0 0 16px rgba(245,158,11,.07),0 0 56px rgba(245,158,11,.28)}
+      50%    {box-shadow:0 0 0 26px rgba(245,158,11,.03),0 0 72px rgba(245,158,11,.38)}
+    }
+    .pulse-ring svg{width:34px;height:34px;color:#080400}
+    .widget-cta h3{
+      font-family:var(--font-display);font-size:1.3rem;font-weight:700;
+      color:var(--c-text);margin-bottom:.5rem;
+    }
+    .widget-cta p{font-size:.86rem;font-weight:300;line-height:1.7;color:var(--c-muted)}
+    .btn-start{
+      background:var(--g-warm);color:#080400;border:none;
+      padding:.85rem 2rem;border-radius:var(--r-full);
+      font-family:var(--font-body);font-size:.8rem;font-weight:600;
+      letter-spacing:.16em;text-transform:uppercase;
+      cursor:pointer;display:inline-flex;align-items:center;gap:.6rem;
+      box-shadow:0 0 28px rgba(245,158,11,.35);
+      transition:transform .35s var(--ease-spring),box-shadow .35s var(--ease-smooth);
+    }
+    .btn-start:hover{transform:translateY(-2px);box-shadow:0 0 44px rgba(245,158,11,.55)}
+    .btn-start:active{transform:scale(.97)}
+    .widget-note{
+      font-size:.72rem;font-weight:300;color:var(--c-dim);
+      display:flex;align-items:center;gap:.35rem;
+    }
+    .fab-pointer{
+      display:flex;flex-direction:column;align-items:center;gap:.4rem;
+      animation:fabBounce 1.4s ease-in-out infinite;
+    }
+    .fab-pointer span{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--c-amber);opacity:.8}
+    @keyframes fabBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+
+    /* ── Glow divider ───────────────────────────────────────────────── */
+    .glow-line{
+      height:1px;border:none;
+      background:linear-gradient(90deg,transparent 0%,rgba(124,58,237,.45) 20%,rgba(0,212,255,.65) 50%,rgba(245,158,11,.4) 80%,transparent 100%);
+      position:relative;z-index:3;
+    }
+
+    /* ── FAQ ────────────────────────────────────────────────────────── */
+    .faq-section{
+      position:relative;padding:5rem clamp(1.5rem,5vw,6rem);
+      background:rgba(3,12,34,.88);
+    }
+    .faq-inner{max-width:800px;margin:0 auto}
+    .faq-header{text-align:center;margin-bottom:3rem}
+    .section-eyebrow{
+      font-size:.74rem;font-weight:400;letter-spacing:.4em;text-transform:uppercase;
+      color:var(--c-amber);margin-bottom:1rem;display:block;
+      text-shadow:0 0 18px rgba(245,158,11,.4);
+    }
+    .section-title{
+      font-family:var(--font-display);font-size:clamp(2rem,4vw,3rem);
+      font-weight:700;line-height:1.12;color:var(--c-text);
+      text-shadow:0 2px 24px rgba(0,0,0,.7);
+    }
+    .section-title em{
+      font-style:italic;
+      background:linear-gradient(90deg,#00d4ff,#7c3aed);
+      -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    }
+    .faq-list{display:flex;flex-direction:column;gap:.75rem}
+    .faq-item{
+      background:rgba(4,18,46,.6);border:1px solid rgba(0,200,255,.14);
+      border-radius:var(--r-md);overflow:hidden;
+      transition:border-color .3s var(--ease-smooth);
+    }
+    .faq-item.open{border-color:rgba(0,212,255,.35)}
+    .faq-q{
+      width:100%;display:flex;align-items:center;justify-content:space-between;gap:1rem;
+      padding:1.2rem 1.5rem;background:none;border:none;cursor:pointer;
+      font-family:var(--font-accent);font-size:.9rem;letter-spacing:.04em;
+      color:var(--c-text);text-align:left;transition:color .3s var(--ease-smooth);
+    }
+    .faq-q:hover{color:var(--c-cyan)}
+    .faq-icon{
+      width:24px;height:24px;border-radius:6px;flex-shrink:0;
+      background:rgba(255,255,255,.04);border:1px solid rgba(0,200,255,.18);
+      display:flex;align-items:center;justify-content:center;
+      color:var(--c-muted);transition:transform .35s var(--ease-fluid),background .3s,border-color .3s;
+    }
+    .faq-item.open .faq-icon{
+      background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.4);
+      color:var(--c-cyan);transform:rotate(45deg);
+    }
+    .faq-a{max-height:0;overflow:hidden;transition:max-height .4s var(--ease-fluid)}
+    .faq-item.open .faq-a{max-height:240px}
+    .faq-a-inner{
+      padding:.25rem 1.5rem 1.4rem;
+      font-size:.88rem;font-weight:300;line-height:1.85;color:var(--c-muted);
+      border-top:1px solid rgba(0,200,255,.1);padding-top:1rem;
+    }
+
+    /* ── CTA Banner ─────────────────────────────────────────────────── */
+    .cta-section{
+      position:relative;padding:5rem clamp(1.5rem,5vw,6rem);
+      text-align:center;overflow:hidden;
+    }
+    .cta-corona{
+      position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      width:min(900px,95vw);height:520px;
+      background:conic-gradient(from 180deg at 50% 50%,
+        rgba(124,58,237,.08) 0deg,rgba(0,212,255,.11) 90deg,
+        rgba(0,245,196,.06) 150deg,rgba(245,158,11,.10) 220deg,
+        rgba(124,58,237,.08) 360deg);
+      filter:blur(64px);pointer-events:none;
+      animation:coronaSpin 28s linear infinite;
+    }
+    @keyframes coronaSpin{
+      from{transform:translate(-50%,-50%) rotate(0deg)}
+      to  {transform:translate(-50%,-50%) rotate(360deg)}
+    }
+    .cta-inner{position:relative;z-index:1;max-width:700px;margin:0 auto}
+    .cta-inner .section-title{margin-bottom:1.25rem}
+    .cta-sub{
+      font-size:clamp(.88rem,1.5vw,1.02rem);font-weight:300;line-height:1.9;
+      color:var(--c-muted);max-width:520px;margin:0 auto 2.5rem;
+    }
+    .cta-btns{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem}
+    .btn-primary{
+      background:var(--g-warm);color:#080400;
+      border:none;padding:.8rem .95rem .8rem 1.9rem;border-radius:var(--r-full);
+      font-family:var(--font-body);font-size:.76rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+      cursor:pointer;display:inline-flex;align-items:center;gap:.75rem;
+      box-shadow:0 0 28px rgba(245,158,11,.3);
+      transition:transform .35s var(--ease-spring),box-shadow .35s var(--ease-smooth);
+      text-decoration:none;
+    }
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 44px rgba(245,158,11,.5)}
+    .btn-icon{
+      width:2rem;height:2rem;border-radius:var(--r-full);
+      background:rgba(0,0,0,.18);display:inline-flex;align-items:center;justify-content:center;
+      font-size:.85rem;flex-shrink:0;letter-spacing:0;text-transform:none;
+    }
+    .btn-secondary{
+      background:transparent;color:var(--c-cyan);
+      border:1px solid rgba(0,212,255,.35);padding:.8rem 1.7rem;
+      border-radius:var(--r-full);font-family:var(--font-body);font-size:.76rem;
+      font-weight:600;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;
+      display:inline-flex;align-items:center;gap:.5rem;
+      transition:transform .35s var(--ease-spring),border-color .3s,box-shadow .3s;
+      text-decoration:none;
+    }
+    .btn-secondary:hover{transform:translateY(-2px);border-color:var(--c-cyan);box-shadow:0 0 28px rgba(0,212,255,.22)}
+    .cta-micro{font-size:.72rem;font-weight:300;letter-spacing:.1em;color:var(--c-dim)}
+
+    /* ── Footer ─────────────────────────────────────────────────────── */
+    .footer{
+      position:relative;padding:2rem clamp(1.5rem,5vw,6rem);
+      border-top:1px solid rgba(0,200,255,.18);
+      background:rgba(2,10,28,.94);
+    }
+    .footer-inner{
+      max-width:1160px;margin:0 auto;
+      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;
+    }
+    .footer-copy{font-size:.78rem;font-weight:300;color:var(--c-dim)}
+    .footer-links{display:flex;gap:1.5rem}
+    .footer-links a{font-size:.78rem;font-weight:300;color:var(--c-dim);transition:color .3s}
+    .footer-links a:hover{color:var(--c-cyan)}
+
+
+    /* ── Responsive ─────────────────────────────────────────────────── */
+    @media(max-width:900px){
+      .demo-grid{grid-template-columns:1fr}
+      .widget-wrap{position:static;order:-1}
+    }
+    @media(max-width:640px){
+      .nav .back-link .back-text{display:none}
+      .cta-btns{flex-direction:column;align-items:center}
+    }
+
+    /* ── sr-only ─────────────────────────────────────────────────────── */
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  </style>
+</head>
+<body>
+
+<!-- Canvas background (same 6-layer engine) -->
+<div id="bg-root" aria-hidden="true">
+  <canvas id="c-base"></canvas>
+  <canvas id="c-stars"></canvas>
+  <canvas id="c-nebula"></canvas>
+  <canvas id="c-net"></canvas>
+  <canvas id="c-part"></canvas>
+  <canvas id="c-bloom"></canvas>
+</div>
+<div id="img-blend" aria-hidden="true"></div>
+
+<div class="page">
+
+  <!-- ── Nav ─────────────────────────────────────────────────────── -->
+  <nav class="nav" role="navigation" aria-label="Demo navigation">
+    <a href="index.html" class="nav-logo" aria-label="LyraForge home">
+      <img src="logo.png" alt="" loading="eager">
+      LyraForge
+    </a>
+    <div class="live-pill" role="status">
+      <span class="live-dot" aria-hidden="true"></span>
+      Agent Online
+    </div>
+    <a href="index.html" class="back-link" aria-label="Back to main site">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+      <span class="back-text">Back to site</span>
+    </a>
+  </nav>
+
+  <!-- ── Hero ─────────────────────────────────────────────────────── -->
+  <section class="hero" aria-labelledby="demo-heading">
+    <div class="hero-eyebrow">
+      <span class="hero-eyebrow-dot" aria-hidden="true"></span>
+      Interactive Live Demo
+    </div>
+    <h1 id="demo-heading">
+      <span class="line-warm">Talk to a Real</span>
+      <span class="line-cool">AI Receptionist.</span>
+    </h1>
+    <p class="hero-sub">
+      This is the same AI your customers will experience — live, unscripted, and
+      ready to book appointments, answer questions, and capture leads right now.
+    </p>
+  </section>
+
+  <!-- ── Demo Stage ────────────────────────────────────────────────── -->
+  <section class="demo-stage" aria-label="Live demo area">
+    <div class="section-overlay"></div>
+    <div class="demo-grid">
+
+      <!-- Instructions + Scenarios -->
+      <div class="instructions">
+        <p class="panel-eyebrow">How to use this demo</p>
+
+        <div class="step-list">
+          <div class="step">
+            <div class="step-num" aria-hidden="true">1</div>
+            <div class="step-body">
+              <h4>Click "Start the Demo"</h4>
+              <p>Use the button on the right to launch a voice or chat session with LyraForge — no signup or credit card needed.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num" aria-hidden="true">2</div>
+            <div class="step-body">
+              <h4>Try a real scenario</h4>
+              <p>Pick one of the suggested prompts below, or come up with your own. The AI responds naturally to whatever you say.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num" aria-hidden="true">3</div>
+            <div class="step-body">
+              <h4>See it in action</h4>
+              <p>Watch LyraForge book the appointment, capture your info, or answer your question — instantly, in real time.</p>
+            </div>
+          </div>
+        </div>
+
+        <p class="scenarios-label">Try saying one of these</p>
+        <div class="scenarios" role="list">
+
+          <button class="scenario-chip" role="listitem" aria-label="Book an appointment scenario">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
+            </svg>
+            <div>
+              <strong>Book an appointment</strong>
+              <span>"I'd like to schedule a consultation for next Tuesday at 10 AM."</span>
+            </div>
+          </button>
+
+          <button class="scenario-chip" role="listitem" aria-label="Ask about services scenario">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>
+            </svg>
+            <div>
+              <strong>Ask about services</strong>
+              <span>"What services do you offer and what are your hours?"</span>
+            </div>
+          </button>
+
+          <button class="scenario-chip" role="listitem" aria-label="Leave contact info scenario">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>
+            </svg>
+            <div>
+              <strong>Leave your contact info</strong>
+              <span>"My name is Alex, I'd like someone to call me back at 555-0199."</span>
+            </div>
+          </button>
+
+          <button class="scenario-chip" role="listitem" aria-label="Report urgent issue scenario">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>
+            </svg>
+            <div>
+              <strong>Report an urgent issue</strong>
+              <span>"This is an emergency — I need to speak with someone right away."</span>
+            </div>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Widget panel -->
+      <div class="widget-wrap">
+        <div class="widget-card" role="region" aria-label="LyraForge AI demo widget">
+          <div class="widget-header">
+            <div class="widget-avatar" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.72 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.64a16 16 0 0 0 6.29 6.29l1.06-1.06a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="widget-name">LyraForge AI</div>
+              <div class="widget-status">
+                <span class="status-dot" aria-hidden="true"></span>
+                Online &amp; Ready
+              </div>
+            </div>
+          </div>
+          <div class="widget-body">
+            <div class="pulse-ring" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.72 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.64a16 16 0 0 0 6.29 6.29l1.06-1.06a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            </div>
+            <div class="widget-cta">
+              <h3>Ready when you are</h3>
+              <p>Click the <strong style="color:var(--c-cyan)">"Talk to LyraForge"</strong> button in the bottom‑right corner to start a live voice or chat session.</p>
+            </div>
+            <div class="fab-pointer" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--c-amber)"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+              <span>bottom‑right corner</span>
+            </div>
+            <p class="widget-note">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+              No credit card or signup needed
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="glow-line" aria-hidden="true">
+
+  <!-- ── FAQ ──────────────────────────────────────────────────────── -->
+  <section class="faq-section" aria-labelledby="faq-heading">
+    <div class="section-overlay" style="background:rgba(1,8,22,.22)"></div>
+    <div class="faq-inner">
+      <div class="faq-header">
+        <span class="section-eyebrow">Common Questions</span>
+        <h2 class="section-title" id="faq-heading">
+          Everything you need<br><em>to know</em>
+        </h2>
+      </div>
+
+      <div class="faq-list" role="list">
+
+        <div class="faq-item" role="listitem">
+          <button class="faq-q" aria-expanded="false" aria-controls="faq-a-1">
+            Can I customize how the receptionist handles calls?
+            <span class="faq-icon" aria-hidden="true">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+          <div class="faq-a" id="faq-a-1">
+            <div class="faq-a-inner">Yes. You can customize the greeting, the types of actions it takes (book, capture, transfer), tone of voice, and industry-specific vocabulary. Instructions are written in plain language — no coding needed.</div>
+          </div>
+        </div>
+
+        <div class="faq-item" role="listitem">
+          <button class="faq-q" aria-expanded="false" aria-controls="faq-a-2">
+            Does it work with my existing phone number?
+            <span class="faq-icon" aria-hidden="true">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+          <div class="faq-a" id="faq-a-2">
+            <div class="faq-a-inner">Yes. You point your existing business number to LyraForge and we handle the rest. No change to your current setup, no hardware to install, no complex IT requirements.</div>
+          </div>
+        </div>
+
+        <div class="faq-item" role="listitem">
+          <button class="faq-q" aria-expanded="false" aria-controls="faq-a-3">
+            How quickly can I go live?
+            <span class="faq-icon" aria-hidden="true">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+          <div class="faq-a" id="faq-a-3">
+            <div class="faq-a-inner">Getting started is straightforward — set your preferences, we configure the AI, and you point your phone number to us. No long sales cycles, no engineering teams, no hardware to install. Most businesses are live in under an hour.</div>
+          </div>
+        </div>
+
+        <div class="faq-item" role="listitem">
+          <button class="faq-q" aria-expanded="false" aria-controls="faq-a-4">
+            What happens when a caller needs a real person?
+            <span class="faq-icon" aria-hidden="true">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+          <div class="faq-a" id="faq-a-4">
+            <div class="faq-a-inner">LyraForge seamlessly transfers the call to your team — no dropped context, no awkward silence. You configure exactly when and how transfers happen based on your business needs.</div>
+          </div>
+        </div>
+
+        <div class="faq-item" role="listitem">
+          <button class="faq-q" aria-expanded="false" aria-controls="faq-a-5">
+            Is my call data secure?
+            <span class="faq-icon" aria-hidden="true">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+          <div class="faq-a" id="faq-a-5">
+            <div class="faq-a-inner">All data is encrypted in transit and at rest. You retain full control over data retention and deletion. LyraForge is built on enterprise-grade infrastructure designed for security and compliance.</div>
+          </div>
+        </div>
+
+        <div class="faq-item" role="listitem">
+          <button class="faq-q" aria-expanded="false" aria-controls="faq-a-6">
+            Does it integrate with my calendar and CRM?
+            <span class="faq-icon" aria-hidden="true">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+          </button>
+          <div class="faq-a" id="faq-a-6">
+            <div class="faq-a-inner">Yes. LyraForge integrates with Google Calendar to create appointments automatically, sends confirmation messages to customers, and can push lead data to your CRM. More integrations are added regularly.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <hr class="glow-line" aria-hidden="true">
+
+  <!-- ── CTA ──────────────────────────────────────────────────────── -->
+  <section class="cta-section" aria-labelledby="cta-heading">
+    <div class="section-overlay" style="background:rgba(0,5,18,.78)"></div>
+    <div class="cta-corona" aria-hidden="true"></div>
+    <div class="cta-inner">
+      <span class="section-eyebrow">Get Started</span>
+      <h2 class="section-title" id="cta-heading">
+        Liked what you<br><em>experienced?</em>
+      </h2>
+      <p class="cta-sub">
+        Let's set up LyraForge for your business. Free for 14 days —
+        no credit card, no IT team, no hardware required.
+      </p>
+      <div class="cta-btns">
+        <a href="mailto:LyraForge@outlook.com" class="btn-primary">
+          Book a Discovery Call
+          <span class="btn-icon" aria-hidden="true">↗</span>
+        </a>
+        <a href="index.html" class="btn-secondary">Back to Home</a>
+      </div>
+      <p class="cta-micro">Free 14-day trial &nbsp;·&nbsp; No credit card &nbsp;·&nbsp; Cancel any time</p>
+    </div>
+  </section>
+
+  <!-- ── Footer ───────────────────────────────────────────────────── -->
+  <footer class="footer" role="contentinfo">
+    <div class="section-overlay" style="background:rgba(0,4,14,.2)"></div>
+    <div class="footer-inner">
+      <div style="display:flex;flex-direction:column;gap:.5rem;">
+        <a href="index.html" class="nav-logo" style="font-size:2rem;" aria-label="LyraForge home">
+          <img src="logo.png" alt="" loading="lazy" style="width:36px;height:36px;object-fit:contain;flex-shrink:0;mix-blend-mode:screen">
+          LyraForge
+        </a>
+        <span class="footer-copy">© 2026 LyraForge, Inc. All rights reserved.</span>
+      </div>
+      <nav class="footer-links" aria-label="Footer links">
+        <a href="index.html">Home</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </nav>
+    </div>
+  </footer>
+
+</div><!-- /.page -->
+
+<script src="js/background.js" defer></script>
+
+<script>
+  // FAQ accordion
+  document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item   = btn.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => {
+        i.classList.remove('open');
+        i.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+      });
+      if (!isOpen) {
+        item.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // Scenario chips — scroll widget into view
+  document.querySelectorAll('.scenario-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelector('.widget-wrap').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+
+</script>
+
+</body>
+</html>

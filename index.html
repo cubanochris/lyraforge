@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LyraForge — The AI Digital Receptionist forged for excellence. Never miss a call. Every conversation handled with precision, 24/7.">
+  <title>LyraForge — AI Digital Receptionist</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Raleway:wght@200;300;400;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ════ Animated canvas background ════ -->
+<div id="bg-root" aria-hidden="true">
+  <canvas id="c-base"></canvas>
+  <canvas id="c-stars"></canvas>
+  <canvas id="c-nebula"></canvas>
+  <canvas id="c-net"></canvas>
+  <canvas id="c-part"></canvas>
+  <canvas id="c-bloom"></canvas>
+</div>
+
+<!-- Image blend layer — meshes AI-generated background with canvas animation -->
+<div id="img-blend" aria-hidden="true"></div>
+
+<div class="page">
+
+  <!-- ════════════════════════════════════════════════════════
+       NAVIGATION — Floating glass pill
+  ════════════════════════════════════════════════════════ -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <a href="#" class="nav-logo" aria-label="LyraForge home">
+      <img src="logo.png" alt="" loading="eager">
+      LyraForge
+    </a>
+
+    <ul class="nav-links" role="list">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#demo">Live Demo</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+    </ul>
+
+    <div class="nav-cta">
+      <a href="#" class="btn btn-ghost">Sign In</a>
+      <a href="#" class="btn btn-primary">
+        Start Free Trial
+        <span class="btn-icon" aria-hidden="true">↗</span>
+      </a>
+    </div>
+
+    <button class="nav-burger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile full-screen overlay -->
+  <nav class="nav-drawer" id="nav-drawer" aria-label="Mobile navigation">
+    <a href="#features">Features</a>
+    <a href="#demo">Live Demo</a>
+    <a href="#how">How It Works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#" class="btn btn-primary" style="margin-top:1.5rem;">
+      Start Free Trial
+      <span class="btn-icon" aria-hidden="true">↗</span>
+    </a>
+  </nav>
+
+  <!-- ════════════════════════════════════════════════════════
+       HERO — Centered with lyre medallion
+  ════════════════════════════════════════════════════════ -->
+  <section class="hero" id="home" aria-labelledby="hero-heading">
+
+    <!-- Copy — fully centered -->
+    <div class="hero-content">
+      <span class="hero-badge">AI-Powered Receptionist</span>
+
+      <h1 class="hero-title" id="hero-heading">
+        <span class="line-warm">Forge Flawless</span>
+        <span class="line-cool">First Impressions.</span>
+      </h1>
+
+      <p class="hero-sub">
+        LyraForge is your AI digital receptionist — available 24/7, trained on your
+        business, and crafted to handle every call with the precision of a master
+        and the warmth of your best employee.
+      </p>
+
+      <p class="hero-type-wrap" aria-live="polite">
+        <span data-type="Answers every call instantly|Books appointments automatically|Qualifies leads in real time|Integrates with your tools|Never misses a caller"></span>
+      </p>
+
+      <div class="hero-cta">
+        <a href="#" class="btn btn-primary">
+          Start Free — No Card Needed
+          <span class="btn-icon" aria-hidden="true">↗</span>
+        </a>
+        <a href="livedemo.html" class="btn btn-secondary">See It Live</a>
+      </div>
+
+      <div class="hero-trust">
+        <div class="hero-trust-stat">
+          <div class="num" data-counter data-target="500" data-suffix="+" aria-label="500+ businesses trust LyraForge">500+</div>
+          <div class="label">Businesses</div>
+        </div>
+        <div class="hero-trust-divider" aria-hidden="true"></div>
+        <div class="hero-trust-stat">
+          <div class="num" data-counter data-target="4.9" data-suffix="★" data-decimals="1" aria-label="4.9 star rating">4.9★</div>
+          <div class="label">Average Rating</div>
+        </div>
+        <div class="hero-trust-divider" aria-hidden="true"></div>
+        <div class="hero-trust-stat">
+          <div class="num" data-counter data-target="99.9" data-suffix="%" data-decimals="1" aria-label="99.9% uptime">99.9%</div>
+          <div class="label">Uptime</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll cue -->
+    <div class="hero-scroll-cue" aria-hidden="true">
+      <span>Discover</span>
+      <div class="scroll-line"></div>
+    </div>
+
+  </section>
+
+  <!-- ════ Glow divider ════ -->
+  <hr class="glow-line" aria-hidden="true">
+
+  <!-- ════════════════════════════════════════════════════════
+       TRUST BAR
+  ════════════════════════════════════════════════════════ -->
+  <div class="trust-bar" aria-label="Trusted by leading businesses">
+    <div class="section-overlay"></div>
+    <div class="trust-bar-inner">
+      <span class="trust-label">Trusted by teams at</span>
+      <div class="trust-logos" aria-hidden="true">
+        <span class="trust-logo">Meridian Group</span>
+        <span class="trust-logo">Apex Legal</span>
+        <span class="trust-logo">NovaClinic</span>
+        <span class="trust-logo">Prism Agency</span>
+        <span class="trust-logo">Elevate Realty</span>
+        <span class="trust-logo">Catalyst Labs</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       STATS — Double-Bezel shells
+  ════════════════════════════════════════════════════════ -->
+  <section class="stats-ribbon" aria-labelledby="stats-heading">
+    <div class="section-overlay"></div>
+    <h2 id="stats-heading" class="sr-only">LyraForge by the numbers</h2>
+    <div class="stats-ribbon-inner" data-reveal-group>
+
+      <div class="stat-shell" data-reveal-item>
+        <div class="stat-item">
+          <div class="stat-number">
+            <span data-counter data-target="2.4" data-suffix="M+" data-decimals="1">2.4M+</span>
+          </div>
+          <div class="stat-label">Calls Handled</div>
+        </div>
+      </div>
+
+      <div class="stat-shell" data-reveal-item>
+        <div class="stat-item">
+          <div class="stat-number">
+            <span data-counter data-target="98" data-suffix="%">98%</span>
+          </div>
+          <div class="stat-label">First-Call Resolution</div>
+        </div>
+      </div>
+
+      <div class="stat-shell" data-reveal-item>
+        <div class="stat-item">
+          <div class="stat-number">
+            <span data-counter data-target="3" data-suffix="s">3s</span>
+          </div>
+          <div class="stat-label">Avg. Answer Time</div>
+        </div>
+      </div>
+
+      <div class="stat-shell" data-reveal-item>
+        <div class="stat-item">
+          <div class="stat-number">
+            <span data-counter data-target="40" data-suffix="%">40%</span>
+          </div>
+          <div class="stat-label">More Bookings Captured</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ════ Glow divider ════ -->
+  <hr class="glow-line" aria-hidden="true">
+
+  <!-- ════════════════════════════════════════════════════════
+       FEATURES / ABOUT
+  ════════════════════════════════════════════════════════ -->
+  <section class="features" id="features" aria-labelledby="features-heading">
+    <div class="section-overlay"></div>
+    <div class="features-inner">
+
+      <!-- Section header -->
+      <div class="features-intro">
+        <p class="section-eyebrow" data-reveal>The Forge Philosophy</p>
+        <h2 class="section-title" id="features-heading" data-reveal>
+          Every call, <em>forged</em><br>to perfection.
+        </h2>
+        <p class="section-body" data-reveal>
+          Just as Orpheus mastered every room with his lyre, LyraForge masters
+          every caller interaction. Precision-trained on your business, it answers,
+          engages, and converts — day and night, without fatigue or error.
+          Built for businesses where a missed ring means a lost client.
+        </p>
+      </div>
+
+      <!-- Feature cards — Double-Bezel shells -->
+      <div class="features-grid" data-reveal-group>
+
+        <!-- 24/7 Availability -->
+        <div class="fc-shell accent-warm" data-reveal-item>
+          <article class="feature-card">
+            <div class="fc-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            </div>
+            <h3 class="fc-title">24 / 7 Availability</h3>
+            <p class="fc-body">
+              The forge never sleeps. LyraForge answers every call — evenings,
+              weekends, holidays — so you never lose a lead to voicemail again.
+            </p>
+            <span class="fc-tag">Always On</span>
+          </article>
+        </div>
+
+        <!-- Natural AI Conversations -->
+        <div class="fc-shell accent-cool" data-reveal-item>
+          <article class="feature-card">
+            <div class="fc-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="2" width="6" height="11" rx="3"/>
+                <path d="M19 10a7 7 0 0 1-14 0"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+              </svg>
+            </div>
+            <h3 class="fc-title">Natural AI Conversations</h3>
+            <p class="fc-body">
+              Powered by advanced language models, LyraForge speaks naturally —
+              understanding context, tone, and intent like your best employee would.
+            </p>
+            <span class="fc-tag">Human-Like</span>
+          </article>
+        </div>
+
+        <!-- Smart Scheduling -->
+        <div class="fc-shell accent-violet" data-reveal-item>
+          <article class="feature-card">
+            <div class="fc-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+                <line x1="8" y1="14" x2="8" y2="14"/>
+                <line x1="12" y1="14" x2="12" y2="14"/>
+                <line x1="16" y1="14" x2="16" y2="14"/>
+              </svg>
+            </div>
+            <h3 class="fc-title">Smart Scheduling</h3>
+            <p class="fc-body">
+              Seamlessly books appointments, manages calendar conflicts, and sends
+              confirmations — all in a single call. No humans required.
+            </p>
+            <span class="fc-tag">Calendar Sync</span>
+          </article>
+        </div>
+
+        <!-- Intelligent Call Routing -->
+        <div class="fc-shell accent-teal" data-reveal-item>
+          <article class="feature-card">
+            <div class="fc-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="17 1 21 5 17 9"/>
+                <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                <polyline points="7 23 3 19 7 15"/>
+                <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+              </svg>
+            </div>
+            <h3 class="fc-title">Intelligent Call Routing</h3>
+            <p class="fc-body">
+              Identifies caller intent and routes warm transfers to the right team
+              member with full context — so your staff only takes calls worth their time.
+            </p>
+            <span class="fc-tag">Zero Hold Time</span>
+          </article>
+        </div>
+
+        <!-- Lead Qualification -->
+        <div class="fc-shell accent-warm" data-reveal-item>
+          <article class="feature-card">
+            <div class="fc-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </div>
+            <h3 class="fc-title">Lead Qualification</h3>
+            <p class="fc-body">
+              Asks the right questions, scores prospects, and pushes warm leads
+              directly to your CRM — your pipeline fills itself.
+            </p>
+            <span class="fc-tag">CRM Ready</span>
+          </article>
+        </div>
+
+        <!-- Call Analytics Dashboard -->
+        <div class="fc-shell accent-cool" data-reveal-item>
+          <article class="feature-card">
+            <div class="fc-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+                <line x1="2" y1="20" x2="22" y2="20"/>
+              </svg>
+            </div>
+            <h3 class="fc-title">Call Analytics Dashboard</h3>
+            <p class="fc-body">
+              Every conversation transcribed, summarised, and surfaced in your
+              dashboard. Understand caller patterns and optimise your operations.
+            </p>
+            <span class="fc-tag">Full Insights</span>
+          </article>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ Glow divider ════ -->
+  <hr class="glow-line" aria-hidden="true">
+
+  <!-- ════════════════════════════════════════════════════════
+       LIVE CALL TERMINAL
+  ════════════════════════════════════════════════════════ -->
+  <section class="terminal-section" id="demo" aria-labelledby="terminal-heading">
+    <div class="section-overlay"></div>
+    <div class="terminal-grid">
+
+      <!-- Left: copy -->
+      <div class="terminal-copy" data-reveal>
+        <p class="section-eyebrow">Live Demo</p>
+        <h2 class="section-title" id="terminal-heading">
+          Watch it handle<br><em>a real call</em>
+        </h2>
+        <p class="section-body">
+          LyraForge picks up in under three seconds, understands the caller's intent,
+          books the appointment, and follows up — all without a human touching the phone.
+        </p>
+        <ul class="terminal-list" aria-label="Key capabilities">
+          <li class="terminal-li">
+            <span class="terminal-dot" aria-hidden="true">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            Answers in under 3 seconds, around the clock
+          </li>
+          <li class="terminal-li">
+            <span class="terminal-dot" aria-hidden="true">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            Understands context, emotion, and caller intent
+          </li>
+          <li class="terminal-li">
+            <span class="terminal-dot" aria-hidden="true">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            Books directly into your calendar in real time
+          </li>
+          <li class="terminal-li">
+            <span class="terminal-dot" aria-hidden="true">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            Sends instant confirmation by text and email
+          </li>
+        </ul>
+      </div>
+
+      <!-- Right: terminal window -->
+      <div class="terminal" role="region" aria-label="Live call demonstration">
+        <div class="term-bar" aria-hidden="true">
+          <span class="td td-r"></span>
+          <span class="td td-y"></span>
+          <span class="td td-g"></span>
+          <span class="term-label">LYRAFORGE · LIVE SESSION</span>
+        </div>
+        <div class="term-body">
+
+          <div class="msg msg-user">
+            <div class="msg-av" aria-hidden="true">C</div>
+            <div class="msg-bub">Hi, I'd like to book a consultation for next week if that's possible.</div>
+          </div>
+
+          <div class="msg msg-ai">
+            <div class="msg-av" aria-hidden="true">LF</div>
+            <div class="msg-bub">Absolutely! I'd be happy to get that scheduled. Could I get your name and a few time preferences that work for you?</div>
+          </div>
+
+          <div class="msg msg-user">
+            <div class="msg-av" aria-hidden="true">C</div>
+            <div class="msg-bub">Sure — it's Chris. I'm free Tuesday afternoon or anytime Thursday morning.</div>
+          </div>
+
+          <div class="msg msg-ai">
+            <div class="msg-av" aria-hidden="true">LF</div>
+            <div class="msg-bub">Perfect, Chris. I have Thursday at 10:00 AM available. Shall I go ahead and book that for you, and send a confirmation to your number?</div>
+          </div>
+
+          <div class="msg msg-user">
+            <div class="msg-av" aria-hidden="true">C</div>
+            <div class="msg-bub">Yes, that works great. Thank you!</div>
+          </div>
+
+          <div class="msg msg-ai">
+            <div class="msg-av" aria-hidden="true">LF</div>
+            <div class="msg-bub">Done! Your consultation is confirmed for Thursday at 10:00 AM. You'll receive a text confirmation shortly. Is there anything else I can help with?</div>
+          </div>
+
+        </div>
+        <div class="term-status" aria-label="Session complete">
+          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="5" fill="#4ade80"/></svg>
+          Appointment booked &nbsp;·&nbsp; Calendar synced &nbsp;·&nbsp; Confirmation sent
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ════ Glow divider ════ -->
+  <hr class="glow-line" aria-hidden="true">
+
+  <!-- ════════════════════════════════════════════════════════
+       INDUSTRIES GRID
+  ════════════════════════════════════════════════════════ -->
+  <section class="industries" id="industries" aria-labelledby="industries-heading">
+    <div class="section-overlay"></div>
+    <div class="industries-inner">
+      <p class="section-eyebrow" data-reveal>Built for Every Business</p>
+      <h2 class="section-title" id="industries-heading" data-reveal>
+        Works wherever<br><em>calls matter most</em>
+      </h2>
+      <p class="section-body" data-reveal>
+        LyraForge is trained to speak the language of your industry — handling
+        intake, scheduling, and lead capture with domain-specific precision.
+      </p>
+
+      <div class="industries-grid" data-reveal-group>
+
+        <!-- Healthcare -->
+        <div class="industry-shell" data-reveal-item>
+          <div class="industry-card">
+            <svg class="industry-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            <div class="industry-name">Healthcare</div>
+            <div class="industry-sub">Clinics &amp; medical practices</div>
+          </div>
+        </div>
+
+        <!-- Legal -->
+        <div class="industry-shell" data-reveal-item>
+          <div class="industry-card">
+            <svg class="industry-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2v20M2 7h20M5 7l7-5 7 5M2 17h20M5 17l7-5 7 5"/>
+            </svg>
+            <div class="industry-name">Legal</div>
+            <div class="industry-sub">Law firms &amp; attorneys</div>
+          </div>
+        </div>
+
+        <!-- Real Estate -->
+        <div class="industry-shell" data-reveal-item>
+          <div class="industry-card">
+            <svg class="industry-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <div class="industry-name">Real Estate</div>
+            <div class="industry-sub">Agents &amp; brokerages</div>
+          </div>
+        </div>
+
+        <!-- Dental -->
+        <div class="industry-shell" data-reveal-item>
+          <div class="industry-card">
+            <svg class="industry-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2C8.5 2 6 4.5 6 7c0 2.5 1.5 4.5 2.5 6.5S10 18 10 20c0 1 .5 2 2 2s2-1 2-2c0-2 .5-4 1.5-6.5S18 9.5 18 7c0-2.5-2.5-5-6-5z"/>
+            </svg>
+            <div class="industry-name">Dental</div>
+            <div class="industry-sub">Practices &amp; orthodontics</div>
+          </div>
+        </div>
+
+        <!-- Automotive -->
+        <div class="industry-shell" data-reveal-item>
+          <div class="industry-card">
+            <svg class="industry-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="1" y="3" width="15" height="13" rx="2"/>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/>
+              <circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+            <div class="industry-name">Automotive</div>
+            <div class="industry-sub">Dealerships &amp; service shops</div>
+          </div>
+        </div>
+
+        <!-- Financial -->
+        <div class="industry-shell" data-reveal-item>
+          <div class="industry-card">
+            <svg class="industry-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            <div class="industry-name">Financial</div>
+            <div class="industry-sub">Advisors &amp; accounting firms</div>
+          </div>
+        </div>
+
+        <!-- Home Services -->
+        <div class="industry-shell" data-reveal-item>
+          <div class="industry-card">
+            <svg class="industry-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+            </svg>
+            <div class="industry-name">Home Services</div>
+            <div class="industry-sub">HVAC, plumbing &amp; electrical</div>
+          </div>
+        </div>
+
+        <!-- Hospitality -->
+        <div class="industry-shell" data-reveal-item>
+          <div class="industry-card">
+            <svg class="industry-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10"/>
+              <path d="M2 17h20"/>
+              <path d="M6 8v9"/>
+            </svg>
+            <div class="industry-name">Hospitality</div>
+            <div class="industry-sub">Hotels &amp; restaurants</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ Glow divider ════ -->
+  <hr class="glow-line" aria-hidden="true">
+
+  <!-- ════════════════════════════════════════════════════════
+       HOW IT WORKS — Vertical timeline
+  ════════════════════════════════════════════════════════ -->
+  <section class="how" id="how" aria-labelledby="how-heading">
+    <div class="section-overlay"></div>
+    <div class="how-inner">
+      <p class="section-eyebrow" data-reveal>Setup in Minutes</p>
+      <h2 class="section-title" id="how-heading" data-reveal>
+        Three steps to your<br><em>perfect receptionist</em>
+      </h2>
+
+      <div class="how-steps" data-reveal-group>
+
+        <div class="how-step" data-reveal-item>
+          <div class="how-step-track">
+            <div class="how-step-num"><span>01</span></div>
+            <div class="how-step-connector"></div>
+          </div>
+          <div class="how-step-content">
+            <h3 class="how-step-title">Connect Your Number</h3>
+            <p class="how-step-body">
+              Port your existing business number or provision a new one. Takes under
+              two minutes — no hardware, no forwarding complexity.
+            </p>
+          </div>
+        </div>
+
+        <div class="how-step" data-reveal-item>
+          <div class="how-step-track">
+            <div class="how-step-num"><span>02</span></div>
+            <div class="how-step-connector"></div>
+          </div>
+          <div class="how-step-content">
+            <h3 class="how-step-title">Train LyraForge</h3>
+            <p class="how-step-body">
+              Upload your FAQs, services, pricing, and team structure. LyraForge
+              learns your voice, your brand, and your customers — in minutes.
+            </p>
+          </div>
+        </div>
+
+        <div class="how-step" data-reveal-item>
+          <div class="how-step-track">
+            <div class="how-step-num"><span>03</span></div>
+            <div class="how-step-connector"></div>
+          </div>
+          <div class="how-step-content">
+            <h3 class="how-step-title">Never Miss a Caller</h3>
+            <p class="how-step-body">
+              Go live and let LyraForge handle the phones. Watch bookings, lead
+              captures, and satisfied callers mount in your real-time dashboard.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ Glow divider ════ -->
+  <hr class="glow-line" aria-hidden="true">
+
+  <!-- ════════════════════════════════════════════════════════
+       TESTIMONIALS
+  ════════════════════════════════════════════════════════ -->
+  <section class="testimonials" id="testimonials" aria-labelledby="testi-heading">
+    <div class="section-overlay"></div>
+    <div class="testimonials-inner">
+      <p class="section-eyebrow" data-reveal>Client Stories</p>
+      <h2 class="section-title" id="testi-heading" data-reveal>
+        What our clients<br><em>are saying</em>
+      </h2>
+
+      <div class="testi-grid" data-reveal-group>
+
+        <div class="testi-shell" data-reveal-item>
+          <div class="testi-card">
+            <div class="testi-stars" aria-label="5 out of 5 stars">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <p class="testi-quote">"We used to lose two or three appointment bookings every morning before the office opened. LyraForge changed that completely. Our front desk team can now focus entirely on patient care instead of fielding calls."</p>
+            <div class="testi-author">
+              <div class="testi-av" aria-hidden="true">SC</div>
+              <div>
+                <div class="testi-name">Dr. Sarah Chen</div>
+                <div class="testi-role">Medical Director, NovaClinic</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-shell" data-reveal-item>
+          <div class="testi-card">
+            <div class="testi-stars" aria-label="5 out of 5 stars">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <p class="testi-quote">"A missed call in law is a missed client. LyraForge handles our after-hours intake so precisely that clients often don't realize they're speaking with AI. The quality of intake it captures is remarkable."</p>
+            <div class="testi-author">
+              <div class="testi-av" aria-hidden="true">JH</div>
+              <div>
+                <div class="testi-name">James Hargrove</div>
+                <div class="testi-role">Managing Partner, Apex Legal</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-shell" data-reveal-item>
+          <div class="testi-card">
+            <div class="testi-stars" aria-label="5 out of 5 stars">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <p class="testi-quote">"Our agents were fielding calls at all hours and burning out. LyraForge handles the inquiry, qualifies the lead, and books the showing automatically. We've seen a 38% increase in closed leads since deploying it."</p>
+            <div class="testi-author">
+              <div class="testi-av" aria-hidden="true">MT</div>
+              <div>
+                <div class="testi-name">Melissa Torres</div>
+                <div class="testi-role">Director, Elevate Realty Group</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ Glow divider ════ -->
+  <hr class="glow-line" aria-hidden="true">
+
+  <!-- ════════════════════════════════════════════════════════
+       CTA BANNER — Spinning corona
+  ════════════════════════════════════════════════════════ -->
+  <section class="cta-section" id="pricing" aria-labelledby="cta-heading">
+    <div class="section-overlay" style="background:rgba(0,5,18,0.78);"></div>
+    <div class="cta-corona" aria-hidden="true"></div>
+    <div class="cta-inner">
+      <p class="section-eyebrow" data-reveal>Start Today</p>
+      <h2 class="section-title" data-reveal id="cta-heading">
+        Ready to forge your<br><em>first impression?</em>
+      </h2>
+      <p class="section-body" data-reveal>
+        Join 500+ businesses already using LyraForge to capture every caller,
+        book more clients, and reclaim time from the phone.
+        Free for 14 days — no credit card required.
+      </p>
+      <div class="cta-btns" data-reveal>
+        <a href="#" class="btn btn-primary">
+          Start Free Trial
+          <span class="btn-icon" aria-hidden="true">↗</span>
+        </a>
+        <a href="#demo" class="btn btn-secondary">Book a Demo</a>
+      </div>
+      <p class="cta-micro" data-reveal>
+        Free 14-day trial &nbsp;·&nbsp; No credit card &nbsp;·&nbsp; Cancel any time &nbsp;·&nbsp; Setup in under 5 minutes
+      </p>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════════════════════ -->
+  <footer class="footer" id="about" role="contentinfo">
+    <div class="section-overlay" style="background:rgba(0,4,14,0.2);"></div>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo footer-logo" aria-label="LyraForge home">
+          <img src="logo.png" alt="" loading="lazy" style="width:36px;height:36px;object-fit:contain;flex-shrink:0;mix-blend-mode:screen">
+          LyraForge
+        </a>
+        <p>AI-powered receptionists forged for businesses that can't afford to miss a call. Available 24/7. Trained on your brand.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-col-title">Product</h4>
+        <ul role="list">
+          <li><a href="#">Features</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">Integrations</a></li>
+          <li><a href="#">API</a></li>
+          <li><a href="#">Changelog</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-col-title">Company</h4>
+        <ul role="list">
+          <li><a href="#">About</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-col-title">Support</h4>
+        <ul role="list">
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Status</a></li>
+          <li><a href="#">Security</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 LyraForge, Inc. All rights reserved.</span>
+      <div style="display:flex;gap:1.5rem;">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Settings</a>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /.page -->
+
+<script src="js/background.js" defer></script>
+<script src="js/main.js" defer></script>
+</body>
+</html>
