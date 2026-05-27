@@ -25,13 +25,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const open = drawer.classList.toggle('open');
       burger.setAttribute('aria-expanded', open);
       burger.classList.toggle('active', open);
+      drawer.setAttribute('aria-hidden', String(!open));
     });
     // Close on link click
     drawer.querySelectorAll('a').forEach(a =>
       a.addEventListener('click', () => {
         drawer.classList.remove('open');
         burger.classList.remove('active');
-        burger.setAttribute('aria-expanded', false);
+        burger.setAttribute('aria-expanded', 'false');
+        drawer.setAttribute('aria-hidden', 'true');
       })
     );
   }
@@ -109,13 +111,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Feature card tilt (subtle 3D on hover, desktop only) ─────────
   if (window.matchMedia('(hover: hover)').matches) {
     document.querySelectorAll('.fc-shell').forEach(shell => {
+      let rafId;
       shell.addEventListener('mousemove', e => {
+        cancelAnimationFrame(rafId);
         const r = shell.getBoundingClientRect();
         const x = (e.clientX - r.left) / r.width  - 0.5;
         const y = (e.clientY - r.top)  / r.height - 0.5;
-        shell.style.transform = `perspective(800px) rotateY(${x * 5}deg) rotateX(${-y * 3.5}deg)`;
+        rafId = requestAnimationFrame(() => {
+          shell.style.transform = `perspective(800px) rotateY(${x * 5}deg) rotateX(${-y * 3.5}deg)`;
+        });
       });
       shell.addEventListener('mouseleave', () => {
+        cancelAnimationFrame(rafId);
         shell.style.transform = '';
       });
     });

@@ -60,7 +60,7 @@
   </nav>
 
   <!-- Mobile full-screen overlay -->
-  <nav class="nav-drawer" id="nav-drawer" aria-label="Mobile navigation">
+  <nav class="nav-drawer" id="nav-drawer" aria-label="Mobile navigation" aria-hidden="true">
     <a href="#features">Features</a>
     <a href="#demo">Live Demo</a>
     <a href="#how">How It Works</a>
@@ -224,8 +224,8 @@
       <!-- Feature cards — Double-Bezel shells -->
       <div class="features-grid" data-reveal-group>
 
-        <!-- 24/7 Availability -->
-        <div class="fc-shell accent-warm" data-reveal-item>
+        <!-- 24/7 Availability — wide -->
+        <div class="fc-shell accent-warm fc-wide" data-reveal-item>
           <article class="feature-card">
             <div class="fc-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -238,6 +238,20 @@
               weekends, holidays — so you never lose a lead to voicemail again.
             </p>
             <span class="fc-tag">Always On</span>
+            <div class="fc-preview" aria-label="Live call log examples">
+              <div class="fc-preview-row">
+                <span class="fc-dot fc-dot-green" aria-hidden="true"></span>
+                Monday 2:14 AM — Incoming call answered in 0.8s
+              </div>
+              <div class="fc-preview-row">
+                <span class="fc-dot fc-dot-green" aria-hidden="true"></span>
+                Saturday 11:47 PM — Appointment booked, confirmation sent
+              </div>
+              <div class="fc-preview-row">
+                <span class="fc-dot fc-dot-green" aria-hidden="true"></span>
+                Sunday 8:03 AM — Lead captured and logged to CRM
+              </div>
+            </div>
           </article>
         </div>
 
@@ -284,8 +298,8 @@
           </article>
         </div>
 
-        <!-- Intelligent Call Routing -->
-        <div class="fc-shell accent-teal" data-reveal-item>
+        <!-- Intelligent Call Routing — wide -->
+        <div class="fc-shell accent-teal fc-wide" data-reveal-item>
           <article class="feature-card">
             <div class="fc-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -301,6 +315,16 @@
               member with full context — so your staff only takes calls worth their time.
             </p>
             <span class="fc-tag">Zero Hold Time</span>
+            <div class="fc-preview" aria-label="Call routing examples">
+              <div class="fc-preview-row">
+                <span class="fc-dot fc-dot-amber" aria-hidden="true"></span>
+                Caller says "emergency" → on-call technician transferred in 3s
+              </div>
+              <div class="fc-preview-row">
+                <span class="fc-dot fc-dot-cyan" aria-hidden="true"></span>
+                Complex billing query → Finance team, full call summary included
+              </div>
+            </div>
           </article>
         </div>
 
@@ -321,8 +345,8 @@
           </article>
         </div>
 
-        <!-- Call Analytics Dashboard -->
-        <div class="fc-shell accent-cool" data-reveal-item>
+        <!-- Call Analytics Dashboard — wide -->
+        <div class="fc-shell accent-cool fc-wide" data-reveal-item>
           <article class="feature-card">
             <div class="fc-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -338,6 +362,16 @@
               dashboard. Understand caller patterns and optimise your operations.
             </p>
             <span class="fc-tag">Full Insights</span>
+            <div class="fc-preview" aria-label="Today's analytics summary">
+              <div class="fc-preview-row">
+                <span class="fc-dot fc-dot-cyan" aria-hidden="true"></span>
+                Today: 24 calls · 18 appointments booked · 6 leads captured
+              </div>
+              <div class="fc-preview-row">
+                <span class="fc-dot fc-dot-amber" aria-hidden="true"></span>
+                Avg. handle time: 1m 42s · All transcribed &amp; searchable
+              </div>
+            </div>
           </article>
         </div>
 
