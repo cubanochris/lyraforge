@@ -64,7 +64,7 @@ a{text-decoration:none;color:inherit}
 ul{list-style:none}
 
 /* ── Background layers ───────────────────────────────────────────── */
-#bg-root{position:fixed;inset:0;z-index:0;pointer-events:none}
+#bg-root{position:fixed;inset:0;z-index:0;pointer-events:none;transform:translateZ(0);will-change:transform}
 #bg-root canvas{position:absolute;inset:0;width:100%;height:100%}
 
 /* Image blend layer — meshes AI-generated background with canvas */
