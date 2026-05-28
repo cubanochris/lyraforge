@@ -45,6 +45,11 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
+// Client dashboard — serve dashboard.html
+app.get('/client/:id/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
 // Client form — serve client.html for any /client/:id path
 app.get('/client/:id', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'client.html'));

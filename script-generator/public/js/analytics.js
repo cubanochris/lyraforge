@@ -11,6 +11,14 @@ let tableSortCol = 'calls';
 let tableSortDir = 'desc';
 let currentClientId = null;
 
+const RETELL_RATE_PER_MIN = 0.12;
+const TIER_MRR = {
+  'Starter': 497,
+  'Professional': 997,
+  'Business Pro': 1997,
+  'Enterprise': 3997
+};
+
 // ========================================
 // TIME RANGE MANAGEMENT
 // ========================================
@@ -46,6 +54,7 @@ function showAnalytics() {
   } else {
     renderAnalytics();
   }
+  loadBillingData();
 }
 
 function showPipeline() {
@@ -547,6 +556,69 @@ function downloadCsv(csv, filename) {
   link.href = URL.createObjectURL(blob);
   link.download = filename;
   link.click();
+}
+
+async function loadBillingData() {
+  try {
+    const res = await fetch('/api/analytics/overview?range=30', {
+      headers: { 'Authorization': authHeader() }
+    });
+    if (!res.ok) return;
+    renderBillingPanel(await res.json());
+  } catch (err) {
+    console.error('[loadBillingData]', err);
+  }
+}
+
+function renderBillingPanel(data) {
+  if (!data || !data.clients) return;
+
+  const now = new Date();
+  document.getElementById('billing-period').textContent =
+    now.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+  const rows = data.clients.map(function(client) {
+    const mrr = TIER_MRR[client.subscription] || null;
+    const totalMinutes = (client.calls * (client.avgDuration || 0)) / 60000;
+    const cost = Math.round(totalMinutes * RETELL_RATE_PER_MIN * 100) / 100;
+    const margin = mrr !== null ? Math.round((mrr - cost) * 100) / 100 : null;
+    const marginPct = mrr ? margin / mrr : null;
+    let marginClass = 'margin-dash';
+    if (marginPct !== null) {
+      if (marginPct >= 0.8) marginClass = 'margin-green';
+      else if (marginPct >= 0.5) marginClass = 'margin-amber';
+      else marginClass = 'margin-red';
+    }
+    return { name: client.businessName, subscription: client.subscription, mrr, cost, margin, marginClass };
+  }).sort(function(a, b) {
+    if (a.margin === null && b.margin === null) return 0;
+    if (a.margin === null) return 1;
+    if (b.margin === null) return -1;
+    return b.margin - a.margin;
+  });
+
+  const totalMrr = rows.reduce(function(s, r) { return s + (r.mrr || 0); }, 0);
+  const totalCost = Math.round(rows.reduce(function(s, r) { return s + r.cost; }, 0) * 100) / 100;
+  const totalMargin = Math.round((totalMrr - totalCost) * 100) / 100;
+
+  document.getElementById('billing-mrr').textContent = '$' + totalMrr.toLocaleString();
+  document.getElementById('billing-cost').textContent = '$' + totalCost.toFixed(2);
+  document.getElementById('billing-margin').textContent = totalMrr > 0 ? '$' + totalMargin.toLocaleString() : '—';
+
+  const tbody = document.getElementById('billing-tbody');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#475569">No clients</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(function(r) {
+    return '<tr>' +
+      '<td>' + escHtml(r.name) + '</td>' +
+      '<td>' + (r.subscription ? escHtml(r.subscription) : '<span class="margin-dash">—</span>') + '</td>' +
+      '<td>' + (r.mrr ? '$' + r.mrr.toLocaleString() : '<span class="margin-dash">—</span>') + '</td>' +
+      '<td>$' + r.cost.toFixed(2) + '</td>' +
+      '<td class="' + r.marginClass + '">' + (r.margin !== null ? '$' + r.margin.toLocaleString() : '—') + '</td>' +
+      '</tr>';
+  }).join('');
 }
 
 // ========================================

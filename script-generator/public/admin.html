@@ -456,6 +456,21 @@
       height: 300px;
       margin-bottom: 20px;
     }
+
+    /* Billing panel */
+    .billing-summary { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+    .billing-summary-item { background: #0f172a; border-radius: 8px; padding: 12px 20px; min-width: 140px; }
+    .billing-summary-label { font-size: 10px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .billing-summary-value { font-size: 22px; font-weight: 700; color: #f8fafc; }
+    .billing-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .billing-table th { font-size: 10px; font-weight: 600; color: #64748b; text-transform: uppercase; padding: 8px 12px; text-align: left; border-bottom: 1px solid #334155; cursor: pointer; user-select: none; }
+    .billing-table th:hover { color: #94a3b8; }
+    .billing-table td { padding: 8px 12px; border-bottom: 1px solid #1e293b; color: #cbd5e1; }
+    .billing-table tr:last-child td { border-bottom: none; }
+    .margin-green { color: #22c55e; font-weight: 600; }
+    .margin-amber { color: #f59e0b; font-weight: 600; }
+    .margin-red   { color: #ef4444; font-weight: 600; }
+    .margin-dash  { color: #475569; }
   </style>
 </head>
 <body>
@@ -552,6 +567,37 @@
         </tr>
       </thead>
       <tbody id="table-body" role="rowgroup"></tbody>
+    </table>
+  </div>
+
+  <!-- Billing overview panel -->
+  <div class="analytics-panel" id="billing-panel">
+    <h3>Billing Overview — <span id="billing-period"></span></h3>
+    <div class="billing-summary">
+      <div class="billing-summary-item">
+        <div class="billing-summary-label">Total MRR</div>
+        <div class="billing-summary-value" id="billing-mrr">—</div>
+      </div>
+      <div class="billing-summary-item">
+        <div class="billing-summary-label">Est. Retell Cost</div>
+        <div class="billing-summary-value" id="billing-cost">—</div>
+      </div>
+      <div class="billing-summary-item">
+        <div class="billing-summary-label">Net Margin</div>
+        <div class="billing-summary-value" id="billing-margin">—</div>
+      </div>
+    </div>
+    <table class="billing-table" aria-label="Billing overview by client">
+      <thead>
+        <tr>
+          <th>Business</th>
+          <th>Tier</th>
+          <th>MRR</th>
+          <th>Est. Cost</th>
+          <th>Margin</th>
+        </tr>
+      </thead>
+      <tbody id="billing-tbody"></tbody>
     </table>
   </div>
 

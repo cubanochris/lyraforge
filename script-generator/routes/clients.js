@@ -5,6 +5,8 @@ const adminAuth = require('../middleware/auth');
 const store = require('../lib/clientStore');
 const callStore = require('../lib/callStore');
 
+const TIER_RATES = { 'Starter': 497, 'Professional': 997, 'Business Pro': 1997, 'Enterprise': 3997 };
+
 function isAdmin(req) {
   const header = req.headers['authorization'] || '';
   const [type, encoded] = header.split(' ');
@@ -30,6 +32,64 @@ router.post('/', adminAuth, (req, res) => {
 // GET /api/clients — list all clients (admin only)
 router.get('/', adminAuth, (req, res) => {
   res.json(store.listClients());
+});
+
+// GET /api/clients/:id/usage — public, no auth — safe usage stats for client dashboard
+router.get('/:id/usage', (req, res) => {
+  const client = store.getClient(req.params.id);
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+
+  const range = req.query.range || 'month';
+  const now = Date.now();
+  let cutoff;
+  if (range === 'month') {
+    const d = new Date();
+    cutoff = new Date(d.getFullYear(), d.getMonth(), 1).getTime();
+  } else if (range === '30') {
+    cutoff = now - 30 * 86400000;
+  } else {
+    cutoff = null;
+  }
+
+  const allCalls = callStore.listCalls(req.params.id, 1000);
+  const rangeCalls = cutoff
+    ? allCalls.filter(c => c.startTimestamp && c.startTimestamp >= cutoff)
+    : allCalls;
+
+  const minutesThisRange = rangeCalls.reduce((s, c) => s + (c.durationMs || 0), 0) / 60000;
+  const minutesAllTime = allCalls.reduce((s, c) => s + (c.durationMs || 0), 0) / 60000;
+
+  const sentiment = { positive: 0, neutral: 0, negative: 0 };
+  rangeCalls.forEach(c => {
+    if (c.sentiment === 'positive') sentiment.positive++;
+    else if (c.sentiment === 'negative') sentiment.negative++;
+    else sentiment.neutral++;
+  });
+
+  const recentCalls = [...allCalls]
+    .sort((a, b) => (b.startTimestamp || 0) - (a.startTimestamp || 0))
+    .slice(0, 20)
+    .map(c => ({
+      date: c.startTimestamp ? new Date(c.startTimestamp).toISOString().split('T')[0] : null,
+      durationMs: c.durationMs || 0,
+      sentiment: c.sentiment || null
+    }));
+
+  const d = new Date();
+  res.json({
+    businessName: client.businessInfo?.businessName || '',
+    subscription: client.subscription || '',
+    monthlyRate: TIER_RATES[client.subscription] || null,
+    period: d.toLocaleString('en-US', { month: 'long', year: 'numeric' }),
+    calls: {
+      thisRange: rangeCalls.length,
+      allTime: allCalls.length,
+      minutesThisRange: Math.round(minutesThisRange * 10) / 10,
+      minutesAllTime: Math.round(minutesAllTime * 10) / 10
+    },
+    sentiment,
+    recentCalls
+  });
 });
 
 // GET /api/clients/:id — full data for admin, public fields only otherwise
