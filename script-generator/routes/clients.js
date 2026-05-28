@@ -20,34 +20,6 @@ function isAdmin(req) {
   }
 }
 
-function buildCustomInstructions(client) {
-  const b = client.businessInfo;
-  const c = client.agentConfig;
-  const lines = [];
-
-  if (b.businessName) lines.push(`Business: ${b.businessName}`);
-  if (b.industry)      lines.push(`Industry: ${b.industry}`);
-  if (b.location)      lines.push(`Location: ${b.location}`);
-  if (b.hours)         lines.push(`Hours: ${b.hours}`);
-  if (b.phone)         lines.push(`Phone: ${b.phone}`);
-  if (b.website)       lines.push(`Website: ${b.website}`);
-  if (b.languages)     lines.push(`Languages spoken: ${b.languages}`);
-  if (b.services)      lines.push(`Services: ${b.services}`);
-  if (b.pricing)       lines.push(`Pricing: ${b.pricing}`);
-  if (b.staffNames)    lines.push(`Key staff: ${b.staffNames}`);
-  if (b.bookingLink)   lines.push(`Booking link: ${b.bookingLink}`);
-  if (b.insurancePayment) lines.push(`Payment accepted: ${b.insurancePayment}`);
-  if (b.faqs)          lines.push(`Common questions: ${b.faqs}`);
-  if (b.afterHours)    lines.push(`After-hours: ${b.afterHours}`);
-  if (b.promotions)    lines.push(`Promotions: ${b.promotions}`);
-  if (b.additionalContext) lines.push(b.additionalContext);
-  if (c.escalationRules)   lines.push(`Escalation: ${c.escalationRules}`);
-  if (c.competitorHandling) lines.push(`Competitor handling: ${c.competitorHandling}`);
-  if (c.customInstructions) lines.push(c.customInstructions);
-
-  return lines.join('\n');
-}
-
 // POST /api/clients — create new client
 router.post('/', adminAuth, (req, res) => {
   const client = store.createClient(req.body);
@@ -110,17 +82,20 @@ router.post('/:id/generate', adminAuth, async (req, res) => {
     if (!key) return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not set' });
 
     const generator = new CallScriptGenerator(key);
+    const cfg = client.agentConfig || {};
     const result = await generator.generateScript({
       selectedGoals: goals,
-      tone: tone || 'professional',
-      maxDurationMinutes: maxDurationMinutes || 5,
-      includeObjectionHandling: true,
-      customInstructions: buildCustomInstructions(client)
+      businessData: client.businessInfo || {},
+      tone: cfg.tone || 'professional',
+      maxDurationMinutes: cfg.maxDurationMinutes || 5,
+      escalationRules: cfg.escalationRules || '',
+      competitorHandling: cfg.competitorHandling || '',
+      objectionHandlingStyle: cfg.objectionHandlingStyle || 'neutral',
+      customInstructions: cfg.customInstructions || ''
     });
 
-    const scriptText = JSON.stringify(result.script, null, 2);
     const updated = store.updateClient(client.id, {
-      generatedScript: scriptText,
+      generatedScript: result.script,
       scriptGeneratedAt: new Date().toISOString(),
       status: 'scripted'
     });
