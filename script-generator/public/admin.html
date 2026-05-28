@@ -315,8 +315,18 @@
   }
 
   async function openDetail(id) {
-    const res = await fetch('/api/clients/' + id, { headers: { 'Authorization': authHeader() } });
-    const client = await res.json();
+    const [clientRes, agentsRes, voicesRes, phonesRes] = await Promise.all([
+      fetch('/api/clients/' + id, { headers: { 'Authorization': authHeader() } }),
+      fetch('/api/retell/agents', { headers: { 'Authorization': authHeader() } }),
+      fetch('/api/retell/voices', { headers: { 'Authorization': authHeader() } }),
+      fetch('/api/retell/phone-numbers', { headers: { 'Authorization': authHeader() } })
+    ]);
+    const client = await clientRes.json();
+    const retell = {
+      agents: agentsRes.ok ? await agentsRes.json() : [],
+      voices: voicesRes.ok ? await voicesRes.json() : [],
+      phones: phonesRes.ok ? await phonesRes.json() : []
+    };
     currentClientId = id;
     currentScript = client.generatedScript || null;
 
@@ -326,7 +336,7 @@
     pill.className = 'status-pill pill-' + client.status;
 
     renderBizFields(client.businessInfo || {});
-    renderCfgFields(client.agentConfig || {});
+    renderCfgFields(client.agentConfig || {}, retell);
 
     const preview = document.getElementById('script-preview');
     if (client.generatedScript) {
@@ -368,12 +378,54 @@
     }).join('');
   }
 
-  function renderCfgFields(c) {
+  function renderCfgFields(c, retell) {
+    retell = retell || { agents: [], voices: [], phones: [] };
     const goals = c.goals || [];
     const goalsHtml = GOALS.map(function(g) {
       var selected = goals.includes(g);
       return '<span class="goal-tag' + (selected ? ' selected' : '') + '" onclick="toggleGoal(\'' + g + '\',this)">' + g.replace(/_/g,' ') + '</span>';
     }).join('');
+
+    // Agent dropdown or text fallback
+    var agentField;
+    if (retell.agents.length) {
+      agentField = '<select id="cfg-retell-id">' +
+        '<option value="">-- select agent --</option>' +
+        retell.agents.map(function(a) {
+          return '<option value="' + escHtml(a.agent_id) + '"' + (c.retellAgentId === a.agent_id ? ' selected' : '') + '>' + escHtml(a.agent_name || a.agent_id) + '</option>';
+        }).join('') +
+        '</select>';
+    } else {
+      agentField = '<input type="text" id="cfg-retell-id" value="' + escHtml(c.retellAgentId||'') + '" placeholder="agent_xxxxxx" />';
+    }
+
+    // Phone number dropdown or text fallback
+    var phoneField;
+    if (retell.phones.length) {
+      phoneField = '<select id="cfg-retell-phone">' +
+        '<option value="">-- select number --</option>' +
+        retell.phones.map(function(p) {
+          var label = (p.phone_number_pretty || p.phone_number) + (p.agent_id ? ' → ' + p.agent_id : '');
+          return '<option value="' + escHtml(p.phone_number) + '"' + (c.retellPhoneNumber === p.phone_number ? ' selected' : '') + '>' + escHtml(label) + '</option>';
+        }).join('') +
+        '</select>';
+    } else {
+      phoneField = '<input type="text" id="cfg-retell-phone" value="' + escHtml(c.retellPhoneNumber||'') + '" placeholder="+1xxxxxxxxxx" />';
+    }
+
+    // Voice dropdown or text fallback
+    var voiceField;
+    if (retell.voices.length) {
+      voiceField = '<select id="cfg-voice">' +
+        '<option value="">-- select voice --</option>' +
+        retell.voices.map(function(v) {
+          var label = v.voice_name + ' (' + (v.provider || '') + (v.gender ? ', ' + v.gender : '') + (v.accent ? ', ' + v.accent : '') + ')';
+          return '<option value="' + escHtml(v.voice_id) + '"' + (c.voiceSelection === v.voice_id ? ' selected' : '') + '>' + escHtml(label) + '</option>';
+        }).join('') +
+        '</select>';
+    } else {
+      voiceField = '<select id="cfg-voice">' + VOICES.map(function(v){ return '<option' + (c.voiceSelection===v?' selected':'') + '>' + v + '</option>'; }).join('') + '</select>';
+    }
 
     document.getElementById('cfg-fields').innerHTML =
       '<div class="field"><label>Call Goals (click to toggle)</label><div class="goals-list" id="goals-list">' + goalsHtml + '</div></div>' +
@@ -383,9 +435,9 @@
       '<div class="field"><label>Objection Style</label><select id="cfg-objection">' + ['soft','assertive','neutral'].map(function(s){ return '<option' + (c.objectionHandlingStyle===s?' selected':'') + '>' + s + '</option>'; }).join('') + '</select></div>' +
       '<div class="field"><label>Competitor Handling</label><input type="text" id="cfg-competitor" value="' + escHtml(c.competitorHandling||'') + '" /></div>' +
       '<div class="field"><label>Custom Instructions</label><textarea id="cfg-custom" rows="3">' + escHtml(c.customInstructions||'') + '</textarea></div>' +
-      '<div class="field"><label>Retell Agent ID</label><input type="text" id="cfg-retell-id" value="' + escHtml(c.retellAgentId||'') + '" /></div>' +
-      '<div class="field"><label>Retell Phone Number</label><input type="text" id="cfg-retell-phone" value="' + escHtml(c.retellPhoneNumber||'') + '" /></div>' +
-      '<div class="field"><label>Voice</label><select id="cfg-voice">' + VOICES.map(function(v){ return '<option' + (c.voiceSelection===v?' selected':'') + '>' + v + '</option>'; }).join('') + '</select></div>';
+      '<div class="field"><label>Retell Agent</label>' + agentField + '</div>' +
+      '<div class="field"><label>Phone Number</label>' + phoneField + '</div>' +
+      '<div class="field"><label>Voice</label>' + voiceField + '</div>';
   }
 
   function toggleGoal(goal, el) {

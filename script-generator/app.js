@@ -29,9 +29,11 @@ app.use('/api/scripts/generate', rateLimit({
 // ── Routes ──────────────────────────────────────────────────────────────────
 const scriptsRouter = require('./routes/scripts');
 const clientsRouter = require('./routes/clients');
+const retellRouter = require('./routes/retell');
 
 app.use('/api/scripts', scriptsRouter);
 app.use('/api/clients', clientsRouter);
+app.use('/api/retell', retellRouter);
 
 // Admin dashboard — serve admin.html (auth checked client-side via API)
 app.get('/admin', (req, res) => {
