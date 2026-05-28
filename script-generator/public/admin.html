@@ -202,7 +202,10 @@
     <div style="display:flex;gap:8px;">
       <button class="btn btn-ghost btn-sm" onclick="showCallLog()">&#128222; Calls</button>
       <button class="btn btn-ghost btn-sm" onclick="copyClientLink()">Copy Client Link</button>
-      <button class="btn btn-ghost btn-sm" onclick="saveClientDetail()">Save Changes</button>
+      <div style="position:relative;display:inline-block;">
+        <button class="btn btn-ghost btn-sm" onclick="saveClientDetail()">Save Changes</button>
+        <span id="save-confirm" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:#22c55e;color:white;font-size:10px;font-weight:700;padding:3px 10px;border-radius:4px;white-space:nowrap;">&#10003; Saved</span>
+      </div>
     </div>
   </div>
   <div class="detail-body">
@@ -533,7 +536,13 @@
       headers: { 'Authorization': authHeader(), 'Content-Type': 'application/json' },
       body: JSON.stringify({ businessInfo: collectBizFields(), agentConfig: collectCfgFields() })
     });
-    if (res.ok) showToast('Saved', 'success'); else showToast('Save failed', 'error');
+    if (res.ok) {
+      var el = document.getElementById('save-confirm');
+      el.style.display = 'block';
+      setTimeout(function() { el.style.display = 'none'; }, 2000);
+    } else {
+      showToast('Save failed', 'error');
+    }
   }
 
   async function generateScript() {
