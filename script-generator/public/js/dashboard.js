@@ -12,7 +12,8 @@ function fmtDuration(ms) {
 function fmtSentiment(s) {
   if (!s) return '<span style="color:#475569">—</span>';
   const cls = s === 'positive' ? 's-pos' : s === 'negative' ? 's-neg' : 's-neu';
-  return '<span class="' + cls + '">' + s + '</span>';
+  const safe = s.replace(/[<>&"]/g, '');
+  return '<span class="' + cls + '">' + safe + '</span>';
 }
 
 async function loadDashboard(range) {
@@ -28,6 +29,7 @@ async function loadDashboard(range) {
     render(await res.json());
   } catch (err) {
     console.error('[dashboard]', err);
+    document.getElementById('error-content').style.display = 'block';
   }
 }
 

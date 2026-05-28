@@ -51,7 +51,7 @@ router.get('/:id/usage', (req, res) => {
     cutoff = null;
   }
 
-  const allCalls = callStore.listCalls(req.params.id, 1000);
+  const allCalls = callStore.listCalls(req.params.id, 1000); // note: allTime under-counts beyond 1000 calls
   const rangeCalls = cutoff
     ? allCalls.filter(c => c.startTimestamp && c.startTimestamp >= cutoff)
     : allCalls;

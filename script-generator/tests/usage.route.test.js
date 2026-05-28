@@ -68,6 +68,16 @@ test('range=all returns all calls', async () => {
   expect(res.body.calls.thisRange).toBe(2);
 });
 
+test('range=30 excludes calls older than 30 days', async () => {
+  const client = clientStore.createClient({ clientContact: { name: 'Test' } });
+  const now = Date.now();
+  callStore.upsertCall(client.id, 'recent', { startTimestamp: now - 86400000 * 29, durationMs: 30000 });
+  callStore.upsertCall(client.id, 'old', { startTimestamp: now - 86400000 * 31, durationMs: 30000 });
+  const res = await request(app).get(`/api/clients/${client.id}/usage?range=30`);
+  expect(res.body.calls.thisRange).toBe(1);
+  expect(res.body.calls.allTime).toBe(2);
+});
+
 test('does not expose admin fields', async () => {
   const client = clientStore.createClient({ clientContact: { name: 'Test' }, internalNotes: 'SECRET' });
   const res = await request(app).get(`/api/clients/${client.id}/usage`);
