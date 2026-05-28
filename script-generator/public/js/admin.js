@@ -50,8 +50,19 @@ function isValidEmail(email) {
 // ========================================
 
 async function loadClients() {
-  const res = await fetch('/api/clients', { headers: { 'Authorization': authHeader() } });
-  return res.json();
+  try {
+    const res = await fetch('/api/clients', { headers: { 'Authorization': authHeader() } });
+    if (!res.ok) {
+      if (res.status === 401) { submitLogin(); return []; }
+      showToast('Failed to load clients (' + res.status + ')', 'error');
+      return [];
+    }
+    return res.json();
+  } catch (err) {
+    console.error('[loadClients]', err);
+    showToast('Cannot reach server', 'error');
+    return [];
+  }
 }
 
 function timeAgo(iso) {
@@ -214,14 +225,18 @@ function renderBizFields(b) {
   ];
   document.getElementById('biz-fields').innerHTML = fields.map(function(f) {
     const key = f[0], label = f[1], type = f[2];
-    return '<div class="field"><label>' + label + '</label>' +
+    return '<div class="field"><label for="biz-' + key + '">' + label + '</label>' +
       (type === 'textarea'
-        ? '<textarea id="biz-' + key + '" rows="2">' + escHtml(b[key] || '') + '</textarea>'
-        : '<input type="text" id="biz-' + key + '" value="' + escHtml(b[key] || '') + '" />') +
+        ? '<textarea id="biz-' + key + '" rows="2" aria-label="' + label + '">' + escHtml(b[key] || '') + '</textarea>'
+        : '<input type="text" id="biz-' + key + '" value="' + escHtml(b[key] || '') + '" aria-label="' + label + '" />') +
       '</div>';
   }).join('');
 }
 
+/**
+ * Collect and validate business info form fields.
+ * @returns {Object|null} Field values or null if validation fails (toast already shown)
+ */
 function collectBizFields() {
   const keys = ['businessName', 'industry', 'phone', 'location', 'website', 'hours', 'languages',
     'services', 'pricing', 'staffNames', 'bookingLink', 'insurancePayment', 'faqs', 'afterHours', 'promotions', 'additionalContext'];
@@ -318,6 +333,10 @@ function toggleGoal(goal, el) {
   el.classList.toggle('selected');
 }
 
+/**
+ * Collect and validate agent config form fields.
+ * @returns {Object|null} Config values or null if validation fails (toast already shown)
+ */
 function collectCfgFields() {
   const goals = Array.from(document.querySelectorAll('#goals-list .goal-tag.selected'))
     .map(function(el) { return el.textContent.trim().replace(/ /g, '_'); });
@@ -351,39 +370,55 @@ function collectCfgFields() {
 
 async function saveClientDetail() {
   const bizFields = collectBizFields();
-  if (!bizFields) return; // Validation failed, toast already shown
+  if (!bizFields) return;
 
   const cfgFields = collectCfgFields();
-  if (!cfgFields) return; // Validation failed, toast already shown
+  if (!cfgFields) return;
 
-  const res = await fetch('/api/clients/' + currentClientId, {
-    method: 'PUT',
-    headers: { 'Authorization': authHeader(), 'Content-Type': 'application/json' },
-    body: JSON.stringify({ businessInfo: bizFields, agentConfig: cfgFields })
-  });
-  if (res.ok) {
+  try {
+    const res = await fetch('/api/clients/' + currentClientId, {
+      method: 'PUT',
+      headers: { 'Authorization': authHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ businessInfo: bizFields, agentConfig: cfgFields })
+    });
+    if (!res.ok) {
+      if (res.status === 401) { submitLogin(); return; }
+      const err = await res.json().catch(function() { return {}; });
+      showToast('Save failed: ' + (err.message || res.statusText), 'error');
+      return;
+    }
     const el = document.getElementById('save-confirm');
     el.style.display = 'block';
     setTimeout(function() { el.style.display = 'none'; }, 2000);
-  } else {
-    showToast('Save failed', 'error');
+  } catch (err) {
+    console.error('[saveClientDetail]', err);
+    showToast('Error saving: ' + err.message, 'error');
   }
 }
 
 async function generateScript() {
   await saveClientDetail();
   showToast('Generating script…', 'success');
-  const res = await fetch('/api/clients/' + currentClientId + '/generate', {
-    method: 'POST', headers: { 'Authorization': authHeader() }
-  });
-  const data = await res.json();
-  if (!res.ok) { showToast(data.error, 'error'); return; }
-  currentScript = data.client.generatedScript;
-  document.getElementById('script-preview').textContent = currentScript.slice(0, 120) + '…';
-  document.getElementById('view-script-btn').disabled = false;
-  document.getElementById('copy-script-btn').disabled = false;
-  document.getElementById('push-btn').disabled = false;
-  showToast('Script generated!', 'success');
+  try {
+    const res = await fetch('/api/clients/' + currentClientId + '/generate', {
+      method: 'POST', headers: { 'Authorization': authHeader() }
+    });
+    const data = await res.json().catch(function() { return {}; });
+    if (!res.ok) {
+      if (res.status === 401) { submitLogin(); return; }
+      showToast(data.error || 'Script generation failed', 'error');
+      return;
+    }
+    currentScript = data.client.generatedScript;
+    document.getElementById('script-preview').textContent = currentScript.slice(0, 120) + '…';
+    document.getElementById('view-script-btn').disabled = false;
+    document.getElementById('copy-script-btn').disabled = false;
+    document.getElementById('push-btn').disabled = false;
+    showToast('Script generated!', 'success');
+  } catch (err) {
+    console.error('[generateScript]', err);
+    showToast('Error generating script: ' + err.message, 'error');
+  }
 }
 
 // ========================================
@@ -458,14 +493,23 @@ function renderCallLog(calls) {
 // ========================================
 
 async function pushToRetell() {
-  const res = await fetch('/api/clients/' + currentClientId + '/push', {
-    method: 'POST', headers: { 'Authorization': authHeader() }
-  });
-  const data = await res.json();
-  if (!res.ok) { showToast(data.error, 'error'); return; }
-  showToast('Pushed to Retell — agent is live!', 'success');
-  document.getElementById('detail-status-pill').textContent = 'LIVE';
-  document.getElementById('detail-status-pill').className = 'status-pill pill-live';
+  try {
+    const res = await fetch('/api/clients/' + currentClientId + '/push', {
+      method: 'POST', headers: { 'Authorization': authHeader() }
+    });
+    const data = await res.json().catch(function() { return {}; });
+    if (!res.ok) {
+      if (res.status === 401) { submitLogin(); return; }
+      showToast(data.error || 'Push to Retell failed', 'error');
+      return;
+    }
+    showToast('Pushed to Retell — agent is live!', 'success');
+    document.getElementById('detail-status-pill').textContent = 'LIVE';
+    document.getElementById('detail-status-pill').className = 'status-pill pill-live';
+  } catch (err) {
+    console.error('[pushToRetell]', err);
+    showToast('Error pushing to Retell: ' + err.message, 'error');
+  }
 }
 
 // ========================================

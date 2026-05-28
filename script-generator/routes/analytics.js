@@ -48,11 +48,7 @@ router.get('/client/:id', (req, res) => {
   else if (range === '90') days = 90;
   else if (range === 'all') days = null;
 
-  const data = analyticsEngine.getClientAnalytics(req.params.id, days);
-  if (!data) {
-    return res.status(404).json({ error: 'Client not found' });
-  }
-
+  const data = analyticsEngine.getClientAnalytics(req.params.id, { rangeDays: days });
   res.json(data);
 });
 

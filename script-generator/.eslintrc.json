@@ -1,0 +1,47 @@
+{
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2021": true
+  },
+  "extends": "eslint:recommended",
+  "globals": {
+    "Chart": "readonly",
+    "escHtml": "readonly",
+    "authHeader": "readonly",
+    "showToast": "readonly",
+    "login": "readonly",
+    "GOALS": "readonly",
+    "TONES": "readonly",
+    "VOICES": "readonly",
+    "TIERS": "readonly",
+    "TIER_CLASSES": "readonly",
+    "analyticsData": "writable",
+    "loadAnalytics": "readonly",
+    "renderAnalytics": "readonly",
+    "openDetail": "readonly",
+    "showPipeline": "readonly",
+    "submitLogin": "readonly"
+  },
+  "rules": {
+    "no-console": "warn",
+    "no-unused-vars": ["warn", {
+      "varsIgnorePattern": "^(toggleGoal|openScriptModal|closeScriptModal|copyScript|openDetailAndPush|generateScript|showCallLog|closeCallLog|pushToRetell|copyLink|copyClientLink|deleteClient|showNewClientModal|hideNewClientModal|createClient|updateSubscription|showAnalytics|showPipelineView|renderAnalytics|setAnalyticsRange|sortClientsTable|filterClientsTable|exportOverviewCsv|exportClientCsv|openClientPanel|closeClientPanel)$"
+    }],
+    "eqeqeq": "error",
+    "no-var": "error",
+    "prefer-const": "error"
+  },
+  "overrides": [
+    {
+      "files": ["tests/**/*.js"],
+      "env": {
+        "jest": true
+      }
+    }
+  ],
+  "ignorePatterns": [
+    "public/js/lib/",
+    "node_modules/"
+  ]
+}

@@ -5,7 +5,7 @@
 // State Variables
 let analyticsRange = 30;
 let analyticsData = null;
-let activeCharts = {};
+const activeCharts = {};
 let clientsTableData = [];
 let tableSortCol = 'calls';
 let tableSortDir = 'desc';
@@ -20,11 +20,15 @@ function setAnalyticsRange(days) {
   analyticsData = null;
   loadAnalytics();
 
-  // Update active button
+  // Update active button and aria-pressed state
   document.querySelectorAll('.analytics-header button[data-range]').forEach(btn => {
     btn.classList.remove('active');
+    btn.setAttribute('aria-pressed', 'false');
     const btnRange = btn.dataset.range === 'all' ? null : parseInt(btn.dataset.range);
-    if (btnRange === days) btn.classList.add('active');
+    if (btnRange === days) {
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+    }
   });
 }
 
@@ -54,7 +58,14 @@ function showPipeline() {
 // DATA LOADING
 // ========================================
 
+/**
+ * Fetch analytics overview from API and render the dashboard.
+ * Adds a loading state to the view while the request is in flight.
+ */
 async function loadAnalytics() {
+  const view = document.getElementById('analytics-view');
+  if (view) view.classList.add('loading');
+
   try {
     const rangeParam = analyticsRange ? analyticsRange : 'all';
     const url = `/api/analytics/overview?range=${rangeParam}`;
@@ -77,6 +88,8 @@ async function loadAnalytics() {
   } catch (err) {
     console.error('[loadAnalytics]', err);
     showToast('Error loading analytics', 'error');
+  } finally {
+    if (view) view.classList.remove('loading');
   }
 }
 
@@ -231,10 +244,15 @@ function renderClientsTable() {
   filterAndSortClientsTable();
 }
 
+/**
+ * Filter and sort the clients table based on current search term and sort state.
+ * Sanitizes search input to prevent XSS via HTML injection characters.
+ */
 function filterAndSortClientsTable() {
-  const searchTerm = document.getElementById('search-clients')?.value?.toLowerCase() || '';
+  const rawTerm = document.getElementById('search-clients')?.value || '';
+  const searchTerm = rawTerm.toLowerCase().trim().replace(/[<>"']/g, '');
 
-  let filtered = clientsTableData.filter(client => {
+  const filtered = clientsTableData.filter(client => {
     if (!searchTerm) return true;
     return client.businessName.toLowerCase().includes(searchTerm);
   });
@@ -296,6 +314,10 @@ function sortClientsTable(col) {
 // CLIENT DETAIL PANEL
 // ========================================
 
+/**
+ * Load and display per-client analytics in the slide-in panel.
+ * @param {string} clientId - Client ID to load
+ */
 async function openClientPanel(clientId) {
   currentClientId = clientId;
 

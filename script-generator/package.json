@@ -6,11 +6,15 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "lint": "eslint . --ext .js --ignore-pattern public/js/lib",
+    "lint:fix": "eslint . --ext .js --ignore-pattern public/js/lib --fix"
   },
   "jest": {
     "testEnvironment": "node",
-    "testMatch": ["**/tests/**/*.test.js"]
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.24.0",
@@ -21,6 +25,7 @@
     "express-rate-limit": "^7.3.0"
   },
   "devDependencies": {
+    "eslint": "^8.57.0",
     "jest": "^30.4.2",
     "nodemon": "^3.1.0",
     "prisma": "^5.13.0",

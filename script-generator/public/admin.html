@@ -132,8 +132,24 @@
     .no-calls { font-size: 12px; color: #334155; font-style: italic; padding: 40px; text-align: center; }
 
     /* Analytics styling */
-    #analytics-view { display: none; padding: 20px; overflow-y: auto; min-height: calc(100vh - 53px); }
+    #analytics-view { display: none; padding: 20px; overflow-y: auto; min-height: calc(100vh - 53px); position: relative; }
     #analytics-view.active { display: block; }
+    #analytics-view.loading { opacity: 0.6; pointer-events: none; }
+    #analytics-view.loading::after {
+      content: '';
+      display: block;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 36px;
+      height: 36px;
+      margin: -18px 0 0 -18px;
+      border: 3px solid #334155;
+      border-top-color: #22c55e;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     .analytics-header {
       display: flex;
@@ -445,12 +461,12 @@
 <body>
 
 <!-- Login screen -->
-<div id="login-screen">
+<div id="login-screen" role="main">
   <div class="login-box">
     <h2>&#9889; LyraForge</h2>
     <p>Admin Dashboard</p>
-    <input type="password" id="password-input" placeholder="Enter admin password" />
-    <div class="login-error" id="login-error">Incorrect password</div>
+    <input type="password" id="password-input" placeholder="Enter admin password" aria-label="Admin password" aria-required="true" />
+    <div class="login-error" id="login-error" role="alert" aria-live="assertive">Incorrect password</div>
     <button class="btn btn-primary" style="width:100%" id="login-btn">Sign In</button>
   </div>
 </div>
@@ -465,21 +481,21 @@
     <span class="attention-badge">
       <strong id="attention-count">0</strong> need attention
     </span>
-    <button class="btn btn-primary" onclick="showNewClientModal()">+ New Client</button>
-    <button class="btn btn-ghost" id="btn-analytics" style="display:none;">Analytics</button>
-    <button class="btn btn-ghost" id="btn-pipeline" style="display:none;">Pipeline</button>
+    <button class="btn btn-primary" onclick="showNewClientModal()" aria-label="Create new client">+ New Client</button>
+    <button class="btn btn-ghost" id="btn-analytics" style="display:none;" aria-label="View analytics dashboard">Analytics</button>
+    <button class="btn btn-ghost" id="btn-pipeline" style="display:none;" aria-label="View pipeline">Pipeline</button>
   </div>
 </div>
 
 <!-- Analytics view -->
 <div id="analytics-view">
-  <div class="analytics-header">
-    <button data-range="7">7 Days</button>
-    <button data-range="30" class="active">30 Days</button>
-    <button data-range="90">90 Days</button>
-    <button data-range="all">All Time</button>
-    <input type="search" id="search-clients" placeholder="Search clients...">
-    <button id="export-csv" class="btn btn-purple">📥 Export CSV</button>
+  <div class="analytics-header" role="toolbar" aria-label="Analytics controls">
+    <button data-range="7" aria-pressed="false" aria-label="Show last 7 days">7 Days</button>
+    <button data-range="30" class="active" aria-pressed="true" aria-label="Show last 30 days">30 Days</button>
+    <button data-range="90" aria-pressed="false" aria-label="Show last 90 days">90 Days</button>
+    <button data-range="all" aria-pressed="false" aria-label="Show all time">All Time</button>
+    <input type="search" id="search-clients" placeholder="Search clients..." aria-label="Search clients">
+    <button id="export-csv" class="btn btn-purple" aria-label="Export analytics as CSV">📥 Export CSV</button>
   </div>
 
   <div class="analytics-cards">
@@ -525,26 +541,26 @@
 
   <div class="analytics-panel">
     <h3>Clients</h3>
-    <table id="clients-table">
-      <thead>
-        <tr>
-          <th data-col="businessName">Business Name</th>
-          <th data-col="calls">Calls</th>
-          <th data-col="avgDuration">Avg Duration</th>
-          <th data-col="sentiment">Sentiment</th>
-          <th data-col="status">Status</th>
+    <table id="clients-table" role="grid" aria-label="Clients analytics table">
+      <thead role="rowgroup">
+        <tr role="row">
+          <th scope="col" data-col="businessName">Business Name</th>
+          <th scope="col" data-col="calls">Calls</th>
+          <th scope="col" data-col="avgDuration">Avg Duration</th>
+          <th scope="col" data-col="sentiment">Sentiment</th>
+          <th scope="col" data-col="status">Status</th>
         </tr>
       </thead>
-      <tbody id="table-body"></tbody>
+      <tbody id="table-body" role="rowgroup"></tbody>
     </table>
   </div>
 
   <!-- Client detail panel -->
-  <div id="client-panel" class="panel-overlay">
+  <div id="client-panel" class="panel-overlay" role="dialog" aria-modal="true" aria-labelledby="client-name">
     <div class="panel-content">
       <div class="panel-header">
         <h2 id="client-name">Client Details</h2>
-        <button class="close-btn" id="close-client-panel">&times;</button>
+        <button class="close-btn" id="close-client-panel" aria-label="Close client panel">&times;</button>
       </div>
       <div class="panel-body" id="client-detail-content">Loading...</div>
       <div class="panel-footer">
@@ -624,13 +640,13 @@
 </div>
 
 <!-- New Client Modal -->
-<div class="modal-backdrop" id="new-client-modal">
+<div class="modal-backdrop" id="new-client-modal" role="dialog" aria-modal="true" aria-labelledby="nc-modal-title">
   <div class="modal">
-    <h3>New Client</h3>
-    <div class="field"><label>Client Contact Name</label><input type="text" id="nc-name" placeholder="Michael Torres" /></div>
-    <div class="field"><label>Client Contact Email</label><input type="email" id="nc-email" placeholder="michael@business.com" /></div>
-    <div class="field"><label>Subscription Tier</label>
-      <select id="nc-subscription">
+    <h3 id="nc-modal-title">New Client</h3>
+    <div class="field"><label for="nc-name">Client Contact Name</label><input type="text" id="nc-name" placeholder="Michael Torres" aria-required="true" /></div>
+    <div class="field"><label for="nc-email">Client Contact Email</label><input type="email" id="nc-email" placeholder="michael@business.com" /></div>
+    <div class="field"><label for="nc-subscription">Subscription Tier</label>
+      <select id="nc-subscription" aria-label="Select subscription tier">
         <option value="">-- Select tier --</option>
         <option value="Starter">Starter — $497/mo</option>
         <option value="Professional">Professional — $997/mo</option>
@@ -638,7 +654,7 @@
         <option value="Enterprise">Enterprise — $3,997/mo</option>
       </select>
     </div>
-    <div class="field"><label>Internal Notes (optional)</label><textarea id="nc-notes" placeholder="Referred by..."></textarea></div>
+    <div class="field"><label for="nc-notes">Internal Notes (optional)</label><textarea id="nc-notes" placeholder="Referred by..."></textarea></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="hideNewClientModal()">Cancel</button>
       <button class="btn btn-primary" onclick="createClient()">Create &amp; Copy Link</button>
@@ -647,31 +663,31 @@
 </div>
 
 <!-- Script full-screen modal -->
-<div class="script-modal" id="script-modal">
+<div class="script-modal" id="script-modal" role="dialog" aria-modal="true" aria-labelledby="script-modal-title">
   <div class="script-modal-header">
-    <span class="script-modal-title">&#129302; Generated Script</span>
+    <span class="script-modal-title" id="script-modal-title">&#129302; Generated Script</span>
     <div style="display:flex;gap:8px;">
-      <button class="btn btn-ghost btn-sm" onclick="copyScript()">Copy</button>
-      <button class="btn btn-ghost btn-sm" onclick="closeScriptModal()">&#10005; Close</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyScript()" aria-label="Copy script to clipboard">Copy</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeScriptModal()" aria-label="Close script viewer">&#10005; Close</button>
     </div>
   </div>
   <div class="script-modal-body">
-    <pre id="script-full-text"></pre>
+    <pre id="script-full-text" aria-label="Generated script content"></pre>
   </div>
 </div>
 
 <!-- Call log modal -->
-<div class="calllog-modal" id="calllog-modal">
+<div class="calllog-modal" id="calllog-modal" role="dialog" aria-modal="true" aria-labelledby="calllog-modal-title">
   <div class="calllog-modal-header">
-    <span class="calllog-modal-title">&#128222; Call Log</span>
-    <button class="btn btn-ghost btn-sm" onclick="closeCallLog()">&#10005; Close</button>
+    <span class="calllog-modal-title" id="calllog-modal-title">&#128222; Call Log</span>
+    <button class="btn btn-ghost btn-sm" onclick="closeCallLog()" aria-label="Close call log">&#10005; Close</button>
   </div>
   <div class="calllog-modal-body" id="calllog-body">
     <div class="no-calls">Loading…</div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="alert" aria-live="polite" aria-atomic="true"></div>
 
 <script src="/js/common.js"></script>
 <script src="/js/admin.js"></script>
