@@ -23,14 +23,15 @@ function findClientByAgentId(agentId) {
   ) || null;
 }
 
-router.post('/retell', express.raw({ type: 'application/json' }), (req, res) => {
+router.post('/retell', express.raw({ type: '*/*' }), (req, res) => {
   const signature = req.headers['x-retell-signature'];
-  if (!verifySignature(req.body, signature)) {
+  const rawBody = Buffer.isBuffer(req.body) ? req.body : Buffer.from(JSON.stringify(req.body));
+  if (!verifySignature(rawBody, signature)) {
     return res.status(401).json({ error: 'Invalid signature' });
   }
 
   let payload;
-  try { payload = JSON.parse(req.body); } catch (_) {
+  try { payload = JSON.parse(rawBody); } catch (_) {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
 
