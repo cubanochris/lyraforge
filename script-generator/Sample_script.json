@@ -1,0 +1,51 @@
+{
+  "greeting": "Hello, thank you for calling [Business Name]. This is our automated assistant. How can I help you today?",
+  
+  "flow": [
+    {
+      "stage": "Opening & Intent Discovery",
+      "purpose": "Understand why caller is reaching out",
+      "prompts": [
+        "I'd be happy to help with that. Are you looking to schedule something or do you have questions about our services?",
+        "Great, let me ask a couple quick questions to make sure I connect you with the right person."
+      ],
+      "responses": {
+        "scheduling_interest": "Perfect! Before we book anything, what type of service are you interested in?",
+        "questions_only": "Of course! What would you like to know more about?"
+      }
+    },
+    
+    {
+      "stage": "Lead Qualification", 
+      "purpose": "Determine fit and urgency",
+      "prompts": [
+        "When were you looking to get started?",
+        "Do you have a budget range in mind for this project?"
+      ],
+      "responses": {
+        "ready_soon": "That's great timing. Let me check our availability.",
+        "just_browsing": "No problem at all. I can still show you what we offer and answer any questions."
+      }
+    },
+
+    {
+      "stage": "Appointment Booking",
+      "purpose": "Schedule the meeting",
+      "prompts": [
+        "I have availability on Tuesday at 2 PM or Thursday at 10 AM. Which works better for you?",
+        "What's your name and best email address for the confirmation?"
+      ],
+      "responses": {
+        "time_confirmed": "Perfect! I've scheduled your appointment for [date/time]. You'll receive a calendar invitation shortly."
+      }
+    }
+  ],
+
+  "closing": "Is there anything else I can help you with today? Thank you for calling [Business Name]!",
+  
+  "notes": [
+    "Keep qualification questions brief - max 2-3 questions",
+    "If caller seems rushed, skip to booking immediately",
+    "Always confirm appointment details before ending call"
+  ]
+}

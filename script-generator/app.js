@@ -1,74 +1,69 @@
-// app.js - Standalone Express server for the AI Script Generator
-// Run: node app.js  |  dev: nodemon app.js
 require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
-const scriptsRouter = require('./routes/scripts');
+const path = require('path');
+const fs = require('fs');
+
+// Ensure data/clients directory exists on startup
+fs.mkdirSync(path.join(__dirname, 'data', 'clients'), { recursive: true });
 
 const app = express();
 
-// -- Middleware --------------------------------------------------------------
+// ── Middleware ──────────────────────────────────────────────────────────────
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
-  methods: ['GET', 'POST', 'DELETE']
+  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Rate limit: 20 generation requests per minute per IP
 app.use('/api/scripts/generate', rateLimit({
-  windowMs: 60_000,
+  windowMs: 60000,
   max: 20,
-  message: { success: false, error: 'Too many requests - slow down' }
+  message: { success: false, error: 'Too many requests — slow down' }
 }));
 
-// -- Routes ------------------------------------------------------------------
+// ── Routes ──────────────────────────────────────────────────────────────────
+const scriptsRouter = require('./routes/scripts');
+const clientsRouter = require('./routes/clients');
+
 app.use('/api/scripts', scriptsRouter);
+app.use('/api/clients', clientsRouter);
+
+// Admin dashboard — serve admin.html (auth checked client-side via API)
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// Client form — serve client.html for any /client/:id path
+app.get('/client/:id', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'client.html'));
+});
 
 // Health check
 app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
-    service: 'AI Script Generator',
+    service: 'LyraForge Script Generator',
     ts: new Date().toISOString(),
     anthropicKeySet: !!(process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY)
   });
 });
 
-// -- Quick demo: curl-ready test --------------------------------------------
-app.get('/demo', async (req, res) => {
-  res.json({
-    message: 'AI Script Generator is running. Try the endpoints below.',
-    endpoints: {
-      'GET  /health':                  'Health check',
-      'GET  /api/scripts/goals':       'List all goals and presets',
-      'GET  /api/scripts/templates':   'Pre-built templates',
-      'POST /api/scripts/generate':    'Generate a script',
-      'POST /api/scripts/batch':       'Generate multiple variants (A/B)',
-      'GET  /api/scripts/saved':       'List saved scripts (?businessId=xxx)',
-      'GET  /api/scripts/saved/:id':   'Get a saved script'
-    },
-    exampleGenerateBody: {
-      goals: ['book_appointment', 'qualify_lead'],
-      tone: 'friendly',
-      maxDurationMinutes: 5,
-      includeObjectionHandling: true,
-      customInstructions: 'This is for a dental practice. Emphasize that we accept most insurance plans.'
+// ── Start server ─────────────────────────────────────────────────────────────
+if (require.main === module) {
+  const PORT = process.env.PORT || 3001;
+  app.listen(PORT, () => {
+    console.log(`\n⚡ LyraForge Script Generator on http://localhost:${PORT}`);
+    console.log(`   Admin:  http://localhost:${PORT}/admin`);
+    console.log(`   Health: http://localhost:${PORT}/health\n`);
+    if (!process.env.ADMIN_PASSWORD) {
+      console.warn('⚠️  WARNING: ADMIN_PASSWORD is not set\n');
     }
   });
-});
-
-// -- Start server ------------------------------------------------------------
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`\nAI Script Generator running on http://localhost:${PORT}`);
-  console.log(`   Demo:   http://localhost:${PORT}/demo`);
-  console.log(`   Health: http://localhost:${PORT}/health\n`);
-
-  if (!process.env.ANTHROPIC_API_KEY && !process.env.CLAUDE_API_KEY) {
-    console.warn('WARNING: ANTHROPIC_API_KEY is not set - script generation will fail\n');
-  }
-});
+}
 
 module.exports = app;

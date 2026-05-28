@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Set Up Your AI Receptionist — LyraForge</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0f1a; color: #f8fafc; min-height: 100vh; }
+
+    .page-header { text-align: center; padding: 32px 20px 24px; border-bottom: 1px solid #1e293b; }
+    .logo { color: #0ea5e9; font-weight: 800; font-size: 18px; }
+    .headline { font-size: 16px; font-weight: 600; margin-top: 8px; }
+    .sub { font-size: 12px; color: #64748b; margin-top: 4px; }
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 20px; padding: 4px 14px; margin-top: 12px; font-size: 11px; font-weight: 600; }
+    .badge-pending  { background: #f59e0b18; border: 1px solid #f59e0b40; color: #f59e0b; }
+    .badge-review   { background: #0ea5e918; border: 1px solid #0ea5e940; color: #0ea5e9; }
+    .badge-scripted { background: #a855f718; border: 1px solid #a855f740; color: #a855f7; }
+    .badge-live     { background: #22c55e18; border: 1px solid #22c55e40; color: #22c55e; }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+    .form-wrapper { max-width: 560px; margin: 0 auto; padding: 24px 20px 48px; }
+    .section-title { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; color: #64748b; margin: 20px 0 10px; }
+    .divider { border: none; border-top: 1px solid #1e293b; margin: 20px 0; }
+    .field { margin-bottom: 10px; }
+    .field label { display: block; font-size: 11px; color: #94a3b8; margin-bottom: 4px; }
+    .field label .req { color: #ef4444; }
+    .field label .opt { color: #475569; font-size: 10px; }
+    .field input, .field textarea { width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 8px 10px; font-size: 12px; color: #f8fafc; font-family: inherit; }
+    .field input:focus, .field textarea:focus { outline: none; border-color: #0ea5e9; }
+    .field textarea { resize: vertical; min-height: 64px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .submit-btn { width: 100%; background: #0ea5e9; color: white; border: none; border-radius: 8px; padding: 12px; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 20px; }
+    .submit-btn:hover { background: #0284c7; }
+    .submit-btn:disabled { background: #334155; cursor: not-allowed; }
+    .helper { text-align: center; font-size: 11px; color: #475569; margin-top: 10px; }
+
+    #confirm-screen { display: none; text-align: center; padding: 60px 20px; }
+    #confirm-screen h2 { font-size: 20px; margin-bottom: 8px; color: #22c55e; }
+    #confirm-screen p { font-size: 13px; color: #64748b; margin-bottom: 12px; }
+    .update-link { font-size: 12px; color: #0ea5e9; cursor: pointer; text-decoration: underline; }
+
+    #not-found { display: none; text-align: center; padding: 60px 20px; }
+    #not-found h2 { color: #ef4444; font-size: 18px; margin-bottom: 8px; }
+    #not-found p { color: #64748b; font-size: 13px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="logo">⚡ LyraForge</div>
+  <div class="headline">Set Up Your AI Receptionist</div>
+  <div class="sub">Tell us about your business. We handle the rest.</div>
+  <div class="status-badge badge-pending" id="status-badge">
+    <div class="badge-dot"></div>
+    <span id="status-text">Loading…</span>
+  </div>
+</div>
+
+<div id="not-found">
+  <h2>Link Not Found</h2>
+  <p>This setup link is invalid or expired. Contact your LyraForge representative.</p>
+</div>
+
+<div id="confirm-screen">
+  <h2>✅ Submitted!</h2>
+  <p>Our team will review your info and activate your agent within 1 business day.</p>
+  <p>Need to make a change? <span class="update-link" onclick="showForm()">Update your info</span></p>
+</div>
+
+<div id="form-area">
+  <div class="form-wrapper">
+
+    <div class="section-title">YOUR BUSINESS</div>
+    <div class="field"><label>Business Name <span class="req">*</span></label><input type="text" id="f-businessName" /></div>
+    <div class="grid-2">
+      <div class="field"><label>Industry / Type <span class="req">*</span></label><input type="text" id="f-industry" placeholder="Dental, Law Firm, Auto Repair…" /></div>
+      <div class="field"><label>Phone Number <span class="req">*</span></label><input type="tel" id="f-phone" /></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>City / Location</label><input type="text" id="f-location" /></div>
+      <div class="field"><label>Website</label><input type="text" id="f-website" placeholder="yourbusiness.com" /></div>
+    </div>
+    <div class="field"><label>Business Hours <span class="req">*</span></label><input type="text" id="f-hours" placeholder="Mon–Fri 9AM–6PM EST" /></div>
+    <div class="field"><label>Languages Spoken <span class="opt">(optional)</span></label><input type="text" id="f-languages" placeholder="English, Spanish" /></div>
+
+    <hr class="divider">
+    <div class="section-title">SERVICES &amp; OFFER</div>
+    <div class="field"><label>Services You Offer <span class="req">*</span></label><textarea id="f-services" placeholder="List the main services your business provides…"></textarea></div>
+    <div class="field"><label>Pricing Info <span class="opt">(optional)</span></label><input type="text" id="f-pricing" placeholder="e.g. Free consultation, rates vary by case" /></div>
+    <div class="field"><label>Key Staff / Contact Names <span class="opt">(optional)</span></label><input type="text" id="f-staffNames" placeholder="e.g. Ask for Dr. Smith" /></div>
+    <div class="field"><label>Booking / Scheduling Link <span class="opt">(optional)</span></label><input type="text" id="f-bookingLink" placeholder="cal.com/yourbusiness" /></div>
+    <div class="field"><label>Insurance / Payment Accepted <span class="opt">(optional)</span></label><input type="text" id="f-insurancePayment" placeholder="Most major insurance, all credit cards…" /></div>
+    <div class="field"><label>Current Promotions <span class="opt">(optional)</span></label><input type="text" id="f-promotions" /></div>
+
+    <hr class="divider">
+    <div class="section-title">HELP YOUR AGENT SOUND RIGHT</div>
+    <div class="field"><label>Common Questions You Get</label><textarea id="f-faqs" placeholder="Questions your callers frequently ask…"></textarea></div>
+    <div class="field"><label>What to Tell Callers After Hours</label><input type="text" id="f-afterHours" placeholder="Leave a message and we'll call back same day" /></div>
+    <div class="field"><label>Anything else the agent should know? <span class="opt">(optional)</span></label><textarea id="f-additionalContext" rows="2" placeholder="Special instructions, things to always or never say…"></textarea></div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submitForm()">Submit — Get My Agent Set Up</button>
+    <div class="helper">Our team reviews your info and activates your agent within 1 business day.</div>
+
+  </div>
+</div>
+
+<script>
+  var clientId = location.pathname.split('/client/')[1];
+  var FIELDS = ['businessName','industry','phone','location','website','hours','languages',
+    'services','pricing','staffNames','bookingLink','insurancePayment','promotions','faqs','afterHours','additionalContext'];
+
+  var STATUS_LABELS = {
+    pending:  { text: 'Agent setup in progress', cls: 'badge-pending' },
+    review:   { text: 'Info received — under review', cls: 'badge-review' },
+    scripted: { text: 'Script ready — activating soon', cls: 'badge-scripted' },
+    live:     { text: 'Agent is live', cls: 'badge-live' }
+  };
+
+  async function init() {
+    var res = await fetch('/api/clients/' + clientId);
+    if (res.status === 404) {
+      document.getElementById('not-found').style.display = 'block';
+      document.getElementById('form-area').style.display = 'none';
+      document.querySelector('.page-header').style.display = 'none';
+      return;
+    }
+    var data = await res.json();
+    setStatusBadge(data.status);
+    prefill(data.businessInfo || {});
+  }
+
+  function setStatusBadge(status) {
+    var cfg = STATUS_LABELS[status] || STATUS_LABELS.pending;
+    var badge = document.getElementById('status-badge');
+    badge.className = 'status-badge ' + cfg.cls;
+    document.getElementById('status-text').textContent = cfg.text;
+  }
+
+  function prefill(info) {
+    FIELDS.forEach(function(k) {
+      var el = document.getElementById('f-' + k);
+      if (el && info[k]) el.value = info[k];
+    });
+  }
+
+  function collect() {
+    var out = {};
+    FIELDS.forEach(function(k) { var el = document.getElementById('f-' + k); if (el) out[k] = el.value; });
+    return out;
+  }
+
+  function validate() {
+    var required = ['businessName','industry','phone','hours','services'];
+    return required.every(function(k) {
+      var el = document.getElementById('f-' + k);
+      return el && el.value.trim();
+    });
+  }
+
+  async function submitForm() {
+    if (!validate()) {
+      alert('Please fill in the required fields: Business Name, Industry, Phone, Hours, and Services.');
+      return;
+    }
+    var btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+
+    var res = await fetch('/api/clients/' + clientId, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ businessInfo: collect() })
+    });
+
+    if (res.ok) {
+      document.getElementById('form-area').style.display = 'none';
+      document.getElementById('confirm-screen').style.display = 'block';
+      setStatusBadge('review');
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Submit — Get My Agent Set Up';
+      alert('Something went wrong. Please try again.');
+    }
+  }
+
+  function showForm() {
+    document.getElementById('confirm-screen').style.display = 'none';
+    document.getElementById('form-area').style.display = 'block';
+  }
+
+  init();
+</script>
+</body>
+</html>

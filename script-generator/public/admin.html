@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LyraForge Admin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0f1a; color: #f8fafc; min-height: 100vh; }
+
+    /* Top bar */
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: #0d1424; border-bottom: 1px solid #1e293b; position: sticky; top: 0; z-index: 10; }
+    .logo { color: #0ea5e9; font-weight: 800; font-size: 16px; }
+    .logo span { color: #64748b; font-weight: 400; font-size: 13px; margin-left: 8px; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .attention-badge { font-size: 11px; color: #94a3b8; }
+    .attention-badge strong { color: #f59e0b; }
+    .btn { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; }
+    .btn-primary { background: #0ea5e9; color: white; }
+    .btn-primary:hover { background: #0284c7; }
+    .btn-ghost { background: #1e293b; color: #94a3b8; }
+    .btn-ghost:hover { background: #334155; color: #f8fafc; }
+    .btn-purple { background: #a855f7; color: white; }
+    .btn-purple:hover { background: #9333ea; }
+    .btn-sm { padding: 4px 10px; font-size: 11px; }
+
+    /* Pipeline */
+    .pipeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; min-height: calc(100vh - 53px); }
+    .column { padding: 16px; border-right: 1px solid #1e293b; }
+    .column:last-child { border-right: none; }
+    .col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+    .col-count { font-size: 10px; padding: 1px 8px; border-radius: 10px; font-weight: 600; }
+    .pending .col-title { color: #f59e0b; } .pending .col-count { background: #f59e0b22; color: #f59e0b; }
+    .review  .col-title { color: #0ea5e9; } .review  .col-count { background: #0ea5e940; color: #0ea5e9; }
+    .scripted .col-title { color: #a855f7; } .scripted .col-count { background: #a855f722; color: #a855f7; }
+    .live    .col-title { color: #22c55e; } .live    .col-count { background: #22c55e22; color: #22c55e; }
+
+    /* Cards */
+    .card { background: #1e293b; border-radius: 8px; padding: 12px; margin-bottom: 8px; border-left: 3px solid #334155; cursor: pointer; transition: box-shadow 0.15s; }
+    .card:hover { box-shadow: 0 0 0 1px #334155; }
+    .card.pending  { border-left-color: #f59e0b; }
+    .card.review   { border-left-color: #0ea5e9; box-shadow: 0 0 0 1px #0ea5e940; }
+    .card.scripted { border-left-color: #a855f7; }
+    .card.live     { border-left-color: #22c55e; }
+    .card-name { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+    .card-meta { font-size: 10px; color: #64748b; margin-bottom: 6px; }
+    .card-sub  { font-size: 10px; color: #94a3b8; }
+    .card-actions { display: flex; gap: 4px; margin-top: 10px; flex-wrap: wrap; }
+
+    /* Detail panel */
+    .detail { display: none; flex-direction: column; min-height: calc(100vh - 53px); }
+    .detail.active { display: flex; }
+    .detail-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: #0d1424; border-bottom: 1px solid #1e293b; }
+    .detail-header-left { display: flex; align-items: center; gap: 10px; }
+    .back-btn { font-size: 11px; color: #64748b; cursor: pointer; }
+    .back-btn:hover { color: #f8fafc; }
+    .detail-name { font-size: 14px; font-weight: 700; }
+    .status-pill { font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600; }
+    .pill-pending  { background: #f59e0b22; color: #f59e0b; }
+    .pill-review   { background: #0ea5e940; color: #0ea5e9; }
+    .pill-scripted { background: #a855f722; color: #a855f7; }
+    .pill-live     { background: #22c55e22; color: #22c55e; }
+    .pill-paused   { background: #334155; color: #64748b; }
+    .detail-body { display: grid; grid-template-columns: 1fr 1fr; flex: 1; overflow: auto; }
+    .detail-col { padding: 16px; border-right: 1px solid #1e293b; overflow-y: auto; }
+    .detail-col:last-child { border-right: none; }
+    .detail-col-title { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 12px; }
+    .biz-title { color: #22c55e; }
+    .cfg-title { color: #a855f7; }
+    .field { margin-bottom: 8px; }
+    .field label { display: block; font-size: 10px; color: #64748b; margin-bottom: 3px; }
+    .field input, .field textarea, .field select { width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 5px; padding: 5px 8px; font-size: 11px; color: #f8fafc; font-family: inherit; }
+    .field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: #0ea5e9; }
+    .field textarea { resize: vertical; min-height: 52px; }
+    .goals-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+    .goal-tag { background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 2px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; user-select: none; }
+    .goal-tag.selected { background: #a855f740; color: #a855f7; border-color: #a855f7; }
+    .detail-footer { padding: 12px 20px; background: #0d1424; border-top: 1px solid #1e293b; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .script-preview { flex: 1; font-size: 10px; color: #64748b; background: #1e293b; border-radius: 5px; padding: 6px 10px; font-family: monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Modal */
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
+    .modal-backdrop.active { display: flex; }
+    .modal { background: #1e293b; border-radius: 10px; padding: 24px; width: 400px; border: 1px solid #334155; }
+    .modal h3 { font-size: 14px; margin-bottom: 16px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+    /* Login */
+    #login-screen { position: fixed; inset: 0; background: #0a0f1a; display: flex; align-items: center; justify-content: center; z-index: 200; }
+    .login-box { background: #1e293b; border-radius: 12px; padding: 32px; width: 320px; text-align: center; border: 1px solid #334155; }
+    .login-box h2 { color: #0ea5e9; font-size: 18px; margin-bottom: 4px; }
+    .login-box p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
+    .login-box input { width: 100%; padding: 8px 12px; border-radius: 6px; background: #0f172a; border: 1px solid #334155; color: #f8fafc; font-size: 13px; margin-bottom: 12px; }
+    .login-error { color: #ef4444; font-size: 11px; margin-bottom: 8px; display: none; }
+
+    .empty { font-size: 11px; color: #334155; font-style: italic; padding: 8px 0; }
+    .toast { position: fixed; bottom: 20px; right: 20px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 10px 16px; font-size: 12px; z-index: 300; display: none; }
+    .toast.show { display: block; }
+    .toast.success { border-color: #22c55e; color: #22c55e; }
+    .toast.error { border-color: #ef4444; color: #ef4444; }
+  </style>
+</head>
+<body>
+
+<!-- Login screen -->
+<div id="login-screen">
+  <div class="login-box">
+    <h2>&#9889; LyraForge</h2>
+    <p>Admin Dashboard</p>
+    <input type="password" id="password-input" placeholder="Enter admin password" />
+    <div class="login-error" id="login-error">Incorrect password</div>
+    <button class="btn btn-primary" style="width:100%" onclick="login()">Sign In</button>
+  </div>
+</div>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div>
+    <span class="logo">&#9889; LyraForge</span>
+    <span class="logo"><span>Script Generator</span></span>
+  </div>
+  <div class="topbar-right">
+    <span class="attention-badge">
+      <strong id="attention-count">0</strong> need attention
+    </span>
+    <button class="btn btn-primary" onclick="showNewClientModal()">+ New Client</button>
+  </div>
+</div>
+
+<!-- Pipeline view -->
+<div class="pipeline" id="pipeline-view">
+  <div class="column pending">
+    <div class="col-header">
+      <span class="col-title">&#9203; PENDING</span>
+      <span class="col-count" id="count-pending">0</span>
+    </div>
+    <div id="col-pending"></div>
+  </div>
+  <div class="column review">
+    <div class="col-header">
+      <span class="col-title">&#128203; REVIEW</span>
+      <span class="col-count" id="count-review">0</span>
+    </div>
+    <div id="col-review"></div>
+  </div>
+  <div class="column scripted">
+    <div class="col-header">
+      <span class="col-title">&#129302; SCRIPTED</span>
+      <span class="col-count" id="count-scripted">0</span>
+    </div>
+    <div id="col-scripted"></div>
+  </div>
+  <div class="column live">
+    <div class="col-header">
+      <span class="col-title">&#9989; LIVE</span>
+      <span class="col-count" id="count-live">0</span>
+    </div>
+    <div id="col-live"></div>
+  </div>
+</div>
+
+<!-- Detail panel -->
+<div class="detail" id="detail-view">
+  <div class="detail-header">
+    <div class="detail-header-left">
+      <span class="back-btn" onclick="showPipeline()">&larr; Back</span>
+      <span class="detail-name" id="detail-name">Client</span>
+      <span class="status-pill" id="detail-status-pill"></span>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost btn-sm" onclick="copyClientLink()">Copy Client Link</button>
+      <button class="btn btn-ghost btn-sm" onclick="saveClientDetail()">Save Changes</button>
+    </div>
+  </div>
+  <div class="detail-body">
+    <div class="detail-col">
+      <div class="detail-col-title biz-title">&#127970; BUSINESS INFO <span style="color:#64748b;font-weight:400;font-size:9px;">&mdash; client submitted</span></div>
+      <div id="biz-fields"></div>
+    </div>
+    <div class="detail-col">
+      <div class="detail-col-title cfg-title">&#9881;&#65039; AGENT CONFIG <span style="color:#64748b;font-weight:400;font-size:9px;">&mdash; LyraForge only</span></div>
+      <div id="cfg-fields"></div>
+    </div>
+  </div>
+  <div class="detail-footer">
+    <div class="script-preview" id="script-preview">No script generated yet &mdash; configure goals above then click Generate.</div>
+    <button class="btn btn-purple" onclick="generateScript()">&#9889; Generate Script</button>
+    <button class="btn btn-ghost btn-sm" onclick="copyScript()" id="copy-script-btn" disabled>Copy</button>
+    <button class="btn btn-primary btn-sm" onclick="pushToRetell()" id="push-btn" disabled>Push to Retell</button>
+  </div>
+</div>
+
+<!-- New Client Modal -->
+<div class="modal-backdrop" id="new-client-modal">
+  <div class="modal">
+    <h3>New Client</h3>
+    <div class="field"><label>Client Contact Name</label><input type="text" id="nc-name" placeholder="Michael Torres" /></div>
+    <div class="field"><label>Client Contact Email</label><input type="email" id="nc-email" placeholder="michael@business.com" /></div>
+    <div class="field"><label>Internal Notes (optional)</label><textarea id="nc-notes" placeholder="Referred by..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="hideNewClientModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="createClient()">Create &amp; Copy Link</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const GOALS = ['book_appointment','qualify_lead','take_message','handle_objections','collect_info','schedule_callback'];
+  const TONES = ['professional','friendly','formal','warm','energetic'];
+  const VOICES = ['ElevenLabs - Rachel','ElevenLabs - Adam','Cartesia - Default'];
+
+  let password = '';
+  let currentClientId = null;
+  let currentScript = null;
+
+  function authHeader() {
+    return 'Basic ' + btoa('admin:' + password);
+  }
+
+  async function login() {
+    const pw = document.getElementById('password-input').value;
+    const res = await fetch('/api/clients', { headers: { 'Authorization': 'Basic ' + btoa('admin:' + pw) } });
+    if (res.status === 401) {
+      document.getElementById('login-error').style.display = 'block';
+      return;
+    }
+    password = pw;
+    sessionStorage.setItem('adminPassword', pw);
+    document.getElementById('login-screen').style.display = 'none';
+    const clients = await res.json();
+    renderPipeline(clients);
+  }
+
+  document.getElementById('password-input').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+
+  async function loadClients() {
+    const res = await fetch('/api/clients', { headers: { 'Authorization': authHeader() } });
+    return res.json();
+  }
+
+  function timeAgo(iso) {
+    if (!iso) return '';
+    const diff = Date.now() - new Date(iso).getTime();
+    const m = Math.floor(diff / 60000);
+    if (m < 60) return m + 'm ago';
+    const h = Math.floor(m / 60);
+    if (h < 24) return h + 'h ago';
+    return Math.floor(h / 24) + 'd ago';
+  }
+
+  function renderPipeline(clients) {
+    const cols = { pending: [], review: [], scripted: [], live: [] };
+    clients.forEach(c => { if (cols[c.status]) cols[c.status].push(c); });
+
+    const attention = (cols.review.length || 0) + (cols.scripted.length || 0);
+    document.getElementById('attention-count').textContent = attention;
+
+    for (const [status, list] of Object.entries(cols)) {
+      document.getElementById('count-' + status).textContent = list.length;
+      const el = document.getElementById('col-' + status);
+      el.innerHTML = list.length === 0 ? '<div class="empty">No clients</div>' : '';
+      list.forEach(c => el.appendChild(buildCard(c)));
+    }
+  }
+
+  function buildCard(c) {
+    const div = document.createElement('div');
+    div.className = 'card ' + c.status;
+    const name = (c.businessInfo && c.businessInfo.businessName) || (c.clientContact && c.clientContact.name) || 'Unnamed';
+    const industry = (c.businessInfo && c.businessInfo.industry) || '';
+    const tone = (c.agentConfig && c.agentConfig.tone) || '';
+    div.innerHTML =
+      '<div class="card-name">' + escHtml(name) + '</div>' +
+      '<div class="card-meta">' + timeAgo(c.updatedAt) + '</div>' +
+      '<div class="card-sub">' + escHtml([industry, tone].filter(Boolean).join(' · ')) + '</div>' +
+      '<div class="card-actions">' +
+        (c.status === 'pending' ? '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();copyLink(\'' + c.id + '\')">Copy Link</button>' : '') +
+        (c.status === 'scripted' ? '<button class="btn btn-purple btn-sm" onclick="event.stopPropagation();openDetailAndPush(\'' + c.id + '\')">Push to Retell</button>' : '') +
+        '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openDetail(\'' + c.id + '\')">' +
+          (c.status === 'review' ? 'Review →' : 'Edit') +
+        '</button>' +
+      '</div>';
+    return div;
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  async function openDetail(id) {
+    const res = await fetch('/api/clients/' + id, { headers: { 'Authorization': authHeader() } });
+    const client = await res.json();
+    currentClientId = id;
+    currentScript = client.generatedScript || null;
+
+    document.getElementById('detail-name').textContent = (client.businessInfo && client.businessInfo.businessName) || (client.clientContact && client.clientContact.name) || 'Client';
+    const pill = document.getElementById('detail-status-pill');
+    pill.textContent = client.status.toUpperCase();
+    pill.className = 'status-pill pill-' + client.status;
+
+    renderBizFields(client.businessInfo || {});
+    renderCfgFields(client.agentConfig || {});
+
+    const preview = document.getElementById('script-preview');
+    if (client.generatedScript) {
+      preview.textContent = client.generatedScript.slice(0, 120) + '…';
+    } else {
+      preview.textContent = 'No script generated yet — configure goals above then click Generate.';
+    }
+    document.getElementById('copy-script-btn').disabled = !client.generatedScript;
+    document.getElementById('push-btn').disabled = !client.generatedScript;
+
+    document.getElementById('pipeline-view').style.display = 'none';
+    document.getElementById('detail-view').classList.add('active');
+  }
+
+  async function openDetailAndPush(id) {
+    await openDetail(id);
+    pushToRetell();
+  }
+
+  function renderBizFields(b) {
+    const fields = [
+      ['businessName','Business Name','text'], ['industry','Industry / Type','text'],
+      ['phone','Phone','text'], ['location','Location / City','text'],
+      ['website','Website','text'], ['hours','Business Hours','text'],
+      ['languages','Languages Spoken','text'], ['services','Services Offered','textarea'],
+      ['pricing','Pricing Info','text'], ['staffNames','Key Staff Names','text'],
+      ['bookingLink','Booking Link','text'], ['insurancePayment','Insurance / Payment','text'],
+      ['faqs','FAQs','textarea'], ['afterHours','After-Hours Message','text'],
+      ['promotions','Current Promotions','text'], ['additionalContext','Additional Context','textarea']
+    ];
+    document.getElementById('biz-fields').innerHTML = fields.map(function(f) {
+      var key = f[0], label = f[1], type = f[2];
+      return '<div class="field"><label>' + label + '</label>' +
+        (type === 'textarea'
+          ? '<textarea id="biz-' + key + '" rows="2">' + escHtml(b[key] || '') + '</textarea>'
+          : '<input type="text" id="biz-' + key + '" value="' + escHtml(b[key] || '') + '" />') +
+        '</div>';
+    }).join('');
+  }
+
+  function renderCfgFields(c) {
+    const goals = c.goals || [];
+    const goalsHtml = GOALS.map(function(g) {
+      var selected = goals.includes(g);
+      return '<span class="goal-tag' + (selected ? ' selected' : '') + '" onclick="toggleGoal(\'' + g + '\',this)">' + g.replace(/_/g,' ') + '</span>';
+    }).join('');
+
+    document.getElementById('cfg-fields').innerHTML =
+      '<div class="field"><label>Call Goals (click to toggle)</label><div class="goals-list" id="goals-list">' + goalsHtml + '</div></div>' +
+      '<div class="field"><label>Tone</label><select id="cfg-tone">' + TONES.map(function(t){ return '<option' + (c.tone===t?' selected':'') + '>' + t + '</option>'; }).join('') + '</select></div>' +
+      '<div class="field"><label>Max Duration (minutes)</label><input type="number" id="cfg-duration" value="' + (c.maxDurationMinutes||5) + '" min="1" max="30" /></div>' +
+      '<div class="field"><label>Escalation Rules</label><textarea id="cfg-escalation" rows="2">' + escHtml(c.escalationRules||'') + '</textarea></div>' +
+      '<div class="field"><label>Objection Style</label><select id="cfg-objection">' + ['soft','assertive','neutral'].map(function(s){ return '<option' + (c.objectionHandlingStyle===s?' selected':'') + '>' + s + '</option>'; }).join('') + '</select></div>' +
+      '<div class="field"><label>Competitor Handling</label><input type="text" id="cfg-competitor" value="' + escHtml(c.competitorHandling||'') + '" /></div>' +
+      '<div class="field"><label>Custom Instructions</label><textarea id="cfg-custom" rows="3">' + escHtml(c.customInstructions||'') + '</textarea></div>' +
+      '<div class="field"><label>Retell Agent ID</label><input type="text" id="cfg-retell-id" value="' + escHtml(c.retellAgentId||'') + '" /></div>' +
+      '<div class="field"><label>Retell Phone Number</label><input type="text" id="cfg-retell-phone" value="' + escHtml(c.retellPhoneNumber||'') + '" /></div>' +
+      '<div class="field"><label>Voice</label><select id="cfg-voice">' + VOICES.map(function(v){ return '<option' + (c.voiceSelection===v?' selected':'') + '>' + v + '</option>'; }).join('') + '</select></div>';
+  }
+
+  function toggleGoal(goal, el) {
+    el.classList.toggle('selected');
+  }
+
+  function collectBizFields() {
+    var keys = ['businessName','industry','phone','location','website','hours','languages',
+      'services','pricing','staffNames','bookingLink','insurancePayment','faqs','afterHours','promotions','additionalContext'];
+    var out = {};
+    keys.forEach(function(k) { var el = document.getElementById('biz-' + k); if (el) out[k] = el.value; });
+    return out;
+  }
+
+  function collectCfgFields() {
+    var goals = Array.from(document.querySelectorAll('#goals-list .goal-tag.selected'))
+      .map(function(el) { return el.textContent.trim().replace(/ /g,'_'); });
+    return {
+      goals: goals,
+      tone: document.getElementById('cfg-tone') ? document.getElementById('cfg-tone').value : 'professional',
+      maxDurationMinutes: parseInt(document.getElementById('cfg-duration') ? document.getElementById('cfg-duration').value : '5') || 5,
+      escalationRules: document.getElementById('cfg-escalation') ? document.getElementById('cfg-escalation').value : '',
+      objectionHandlingStyle: document.getElementById('cfg-objection') ? document.getElementById('cfg-objection').value : 'soft',
+      competitorHandling: document.getElementById('cfg-competitor') ? document.getElementById('cfg-competitor').value : '',
+      customInstructions: document.getElementById('cfg-custom') ? document.getElementById('cfg-custom').value : '',
+      retellAgentId: document.getElementById('cfg-retell-id') ? document.getElementById('cfg-retell-id').value : '',
+      retellPhoneNumber: document.getElementById('cfg-retell-phone') ? document.getElementById('cfg-retell-phone').value : '',
+      voiceSelection: document.getElementById('cfg-voice') ? document.getElementById('cfg-voice').value : ''
+    };
+  }
+
+  async function saveClientDetail() {
+    var res = await fetch('/api/clients/' + currentClientId, {
+      method: 'PUT',
+      headers: { 'Authorization': authHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ businessInfo: collectBizFields(), agentConfig: collectCfgFields() })
+    });
+    if (res.ok) showToast('Saved', 'success'); else showToast('Save failed', 'error');
+  }
+
+  async function generateScript() {
+    await saveClientDetail();
+    showToast('Generating script…', 'success');
+    var res = await fetch('/api/clients/' + currentClientId + '/generate', {
+      method: 'POST', headers: { 'Authorization': authHeader() }
+    });
+    var data = await res.json();
+    if (!res.ok) { showToast(data.error, 'error'); return; }
+    currentScript = data.client.generatedScript;
+    document.getElementById('script-preview').textContent = currentScript.slice(0, 120) + '…';
+    document.getElementById('copy-script-btn').disabled = false;
+    document.getElementById('push-btn').disabled = false;
+    showToast('Script generated!', 'success');
+  }
+
+  function copyScript() {
+    if (!currentScript) return;
+    navigator.clipboard.writeText(currentScript).then(function() { showToast('Copied!', 'success'); });
+  }
+
+  async function pushToRetell() {
+    var res = await fetch('/api/clients/' + currentClientId + '/push', {
+      method: 'POST', headers: { 'Authorization': authHeader() }
+    });
+    var data = await res.json();
+    if (!res.ok) { showToast(data.error, 'error'); return; }
+    showToast('Pushed to Retell — agent is live!', 'success');
+    document.getElementById('detail-status-pill').textContent = 'LIVE';
+    document.getElementById('detail-status-pill').className = 'status-pill pill-live';
+  }
+
+  function copyLink(id) {
+    var url = location.origin + '/client/' + id;
+    navigator.clipboard.writeText(url).then(function() { showToast('Link copied!', 'success'); });
+  }
+
+  function copyClientLink() { copyLink(currentClientId); }
+
+  function showPipeline() {
+    document.getElementById('pipeline-view').style.display = '';
+    document.getElementById('detail-view').classList.remove('active');
+    loadClients().then(renderPipeline);
+  }
+
+  function showNewClientModal() { document.getElementById('new-client-modal').classList.add('active'); }
+  function hideNewClientModal() { document.getElementById('new-client-modal').classList.remove('active'); }
+
+  async function createClient() {
+    var name = document.getElementById('nc-name').value;
+    var email = document.getElementById('nc-email').value;
+    var notes = document.getElementById('nc-notes').value;
+    var res = await fetch('/api/clients', {
+      method: 'POST',
+      headers: { 'Authorization': authHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientContact: { name: name, email: email }, internalNotes: notes })
+    });
+    var data = await res.json();
+    if (!res.ok) { showToast('Failed to create client', 'error'); return; }
+    navigator.clipboard.writeText(data.clientUrl).then(function() {
+      showToast('Client created — link copied!', 'success');
+    });
+    hideNewClientModal();
+    document.getElementById('nc-name').value = '';
+    document.getElementById('nc-email').value = '';
+    document.getElementById('nc-notes').value = '';
+    loadClients().then(renderPipeline);
+  }
+
+  function showToast(msg, type) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(function() { t.className = 'toast'; }, 3000);
+  }
+
+  // Auto-login if password saved in session
+  var saved = sessionStorage.getItem('adminPassword');
+  if (saved) {
+    document.getElementById('password-input').value = saved;
+    login();
+  }
+</script>
+</body>
+</html>

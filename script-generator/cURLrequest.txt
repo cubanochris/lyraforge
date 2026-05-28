@@ -1,0 +1,10 @@
+curl -X POST https://your-backend.com/api/scripts/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "goals": ["book_appointment", "qualify_lead", "collect_feedback"],
+    "businessId": "biz_123456",
+    "tone": "friendly",
+    "includeObjectionHandling": true,
+    "maxDurationMinutes": 7,
+    "customInstructions": "This is for a dental practice. Emphasize insurance acceptance."
+  }'

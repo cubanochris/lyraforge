@@ -1,0 +1,18 @@
+model VoiceCall {
+  id              String   @id @default(cuid())
+  businessId      String
+  callSid         String   @unique
+  from            String
+  to              String
+  status          String   @default("in-progress")
+  durationSeconds Int?
+  transcript      String?  @db.Text
+  summary         String?
+  scriptId        String?  // Which script was used for this call
+  goalsAchieved   String[] // Which goals were completed: ["book_appointment"]
+  resolved        Boolean  @default(false)
+  escalated       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  endedAt         DateTime?
+  business        Business @relation(fields:[businessId], references:[id])
+}
