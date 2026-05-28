@@ -43,7 +43,10 @@
     .card.review   { border-left-color: #0ea5e9; box-shadow: 0 0 0 1px #0ea5e940; }
     .card.scripted { border-left-color: #a855f7; }
     .card.live     { border-left-color: #22c55e; }
-    .card-name { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; margin-bottom: 3px; }
+    .card-name { font-size: 12px; font-weight: 600; }
+    .card-tier { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+    .card-tier-label { font-size: 9px; color: #64748b; font-weight: 600; letter-spacing: 0.3px; }
     .card-meta { font-size: 10px; color: #64748b; margin-bottom: 6px; }
     .card-sub  { font-size: 10px; color: #94a3b8; }
     .card-actions { display: flex; gap: 4px; margin-top: 10px; flex-wrap: wrap; }
@@ -345,12 +348,15 @@
       return '<option value="' + t + '"' + (sub === t ? ' selected' : '') + '>' + (t || '-- no tier --') + '</option>';
     }).join('');
     div.innerHTML =
-      '<div class="card-name">' + escHtml(name) + '</div>' +
-      '<div class="card-meta">' + timeAgo(c.updatedAt) + '</div>' +
-      '<div class="card-sub" style="display:flex;align-items:center;gap:6px;">' +
-        escHtml([industry, tone].filter(Boolean).join(' · ')) +
-        '<select class="sub-select ' + subClass + '" onchange="event.stopPropagation();updateSubscription(\'' + c.id + '\',this)" onclick="event.stopPropagation()">' + subOptions + '</select>' +
+      '<div class="card-header">' +
+        '<div class="card-name">' + escHtml(name) + '</div>' +
+        '<div class="card-tier">' +
+          '<span class="card-tier-label">TIER:</span>' +
+          '<select class="sub-select ' + subClass + '" onchange="event.stopPropagation();updateSubscription(\'' + c.id + '\',this)" onclick="event.stopPropagation()">' + subOptions + '</select>' +
+        '</div>' +
       '</div>' +
+      '<div class="card-meta">' + timeAgo(c.updatedAt) + '</div>' +
+      '<div class="card-sub">' + escHtml([industry, tone].filter(Boolean).join(' · ')) + '</div>' +
       '<div class="card-actions">' +
         (c.status === 'pending' ? '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();copyLink(\'' + c.id + '\')">Copy Link</button>' : '') +
         (c.status === 'scripted' ? '<button class="btn btn-purple btn-sm" onclick="event.stopPropagation();openDetailAndPush(\'' + c.id + '\')">Push to Retell</button>' : '') +
