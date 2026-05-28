@@ -28,6 +28,7 @@ function createClient(data) {
     createdAt: now,
     updatedAt: now,
     clientContact: {},
+    subscription: '',
     internalNotes: '',
     goLiveDate: null,
     businessInfo: {

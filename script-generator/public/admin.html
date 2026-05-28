@@ -47,6 +47,11 @@
     .card-meta { font-size: 10px; color: #64748b; margin-bottom: 6px; }
     .card-sub  { font-size: 10px; color: #94a3b8; }
     .card-actions { display: flex; gap: 4px; margin-top: 10px; flex-wrap: wrap; }
+    .sub-select { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; border: none; cursor: pointer; appearance: none; -webkit-appearance: none; }
+    .sub-starter      { background: #1e293b; color: #94a3b8; }
+    .sub-professional { background: #0ea5e920; color: #0ea5e9; }
+    .sub-business-pro { background: #f59e0b20; color: #f59e0b; }
+    .sub-enterprise   { background: #a855f720; color: #a855f7; }
 
     /* Detail panel */
     .detail { display: none; flex-direction: column; min-height: calc(100vh - 53px); }
@@ -141,7 +146,7 @@
 <div class="topbar">
   <div>
     <span class="logo">&#9889; LyraForge</span>
-    <span class="logo"><span>Script Generator</span></span>
+    <span class="logo"><span>Admin Dashboard</span></span>
   </div>
   <div class="topbar-right">
     <span class="attention-badge">
@@ -222,6 +227,15 @@
     <h3>New Client</h3>
     <div class="field"><label>Client Contact Name</label><input type="text" id="nc-name" placeholder="Michael Torres" /></div>
     <div class="field"><label>Client Contact Email</label><input type="email" id="nc-email" placeholder="michael@business.com" /></div>
+    <div class="field"><label>Subscription Tier</label>
+      <select id="nc-subscription">
+        <option value="">-- Select tier --</option>
+        <option value="Starter">Starter — $497/mo</option>
+        <option value="Professional">Professional — $997/mo</option>
+        <option value="Business Pro">Business Pro — $1,997/mo</option>
+        <option value="Enterprise">Enterprise — $3,997/mo</option>
+      </select>
+    </div>
     <div class="field"><label>Internal Notes (optional)</label><textarea id="nc-notes" placeholder="Referred by..."></textarea></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="hideNewClientModal()">Cancel</button>
@@ -316,16 +330,27 @@
     }
   }
 
+  var TIERS = ['Starter', 'Professional', 'Business Pro', 'Enterprise'];
+  var TIER_CLASSES = { 'Starter': 'sub-starter', 'Professional': 'sub-professional', 'Business Pro': 'sub-business-pro', 'Enterprise': 'sub-enterprise' };
+
   function buildCard(c) {
     const div = document.createElement('div');
     div.className = 'card ' + c.status;
     const name = (c.businessInfo && c.businessInfo.businessName) || (c.clientContact && c.clientContact.name) || 'Unnamed';
     const industry = (c.businessInfo && c.businessInfo.industry) || '';
     const tone = (c.agentConfig && c.agentConfig.tone) || '';
+    const sub = c.subscription || '';
+    const subClass = TIER_CLASSES[sub] || 'sub-starter';
+    const subOptions = ['', ...TIERS].map(function(t) {
+      return '<option value="' + t + '"' + (sub === t ? ' selected' : '') + '>' + (t || '-- no tier --') + '</option>';
+    }).join('');
     div.innerHTML =
       '<div class="card-name">' + escHtml(name) + '</div>' +
       '<div class="card-meta">' + timeAgo(c.updatedAt) + '</div>' +
-      '<div class="card-sub">' + escHtml([industry, tone].filter(Boolean).join(' · ')) + '</div>' +
+      '<div class="card-sub" style="display:flex;align-items:center;gap:6px;">' +
+        escHtml([industry, tone].filter(Boolean).join(' · ')) +
+        '<select class="sub-select ' + subClass + '" onchange="event.stopPropagation();updateSubscription(\'' + c.id + '\',this)" onclick="event.stopPropagation()">' + subOptions + '</select>' +
+      '</div>' +
       '<div class="card-actions">' +
         (c.status === 'pending' ? '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();copyLink(\'' + c.id + '\')">Copy Link</button>' : '') +
         (c.status === 'scripted' ? '<button class="btn btn-purple btn-sm" onclick="event.stopPropagation();openDetailAndPush(\'' + c.id + '\')">Push to Retell</button>' : '') +
@@ -623,11 +648,12 @@
   async function createClient() {
     var name = document.getElementById('nc-name').value;
     var email = document.getElementById('nc-email').value;
+    var sub = document.getElementById('nc-subscription').value;
     var notes = document.getElementById('nc-notes').value;
     var res = await fetch('/api/clients', {
       method: 'POST',
       headers: { 'Authorization': authHeader(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ clientContact: { name: name, email: email }, internalNotes: notes })
+      body: JSON.stringify({ clientContact: { name: name, email: email }, subscription: sub, internalNotes: notes })
     });
     var data = await res.json();
     if (!res.ok) { showToast('Failed to create client', 'error'); return; }
@@ -637,8 +663,23 @@
     hideNewClientModal();
     document.getElementById('nc-name').value = '';
     document.getElementById('nc-email').value = '';
+    document.getElementById('nc-subscription').value = '';
     document.getElementById('nc-notes').value = '';
     loadClients().then(renderPipeline);
+  }
+
+  async function updateSubscription(id, selectEl) {
+    var tier = selectEl.value;
+    var res = await fetch('/api/clients/' + id, {
+      method: 'PUT',
+      headers: { 'Authorization': authHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subscription: tier })
+    });
+    if (!res.ok) { showToast('Failed to update tier', 'error'); return; }
+    // Update badge class
+    var newClass = tier ? (TIER_CLASSES[tier] || 'sub-starter') : 'sub-starter';
+    selectEl.className = 'sub-select ' + newClass;
+    showToast((tier || 'No tier') + ' saved', 'success');
   }
 
   function showToast(msg, type) {
