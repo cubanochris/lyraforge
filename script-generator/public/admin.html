@@ -99,6 +99,14 @@
     .toast.show { display: block; }
     .toast.success { border-color: #22c55e; color: #22c55e; }
     .toast.error { border-color: #ef4444; color: #ef4444; }
+
+    /* Script full-screen */
+    .script-modal { display: none; position: fixed; inset: 0; background: #0a0f1a; z-index: 400; flex-direction: column; }
+    .script-modal.active { display: flex; }
+    .script-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: #0d1424; border-bottom: 1px solid #1e293b; flex-shrink: 0; }
+    .script-modal-title { font-size: 13px; font-weight: 700; color: #a855f7; }
+    .script-modal-body { flex: 1; overflow-y: auto; padding: 24px; }
+    .script-modal-body pre { font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.7; color: #e2e8f0; white-space: pre-wrap; word-break: break-word; }
   </style>
 </head>
 <body>
@@ -186,6 +194,7 @@
   <div class="detail-footer">
     <div class="script-preview" id="script-preview">No script generated yet &mdash; configure goals above then click Generate.</div>
     <button class="btn btn-purple" onclick="generateScript()">&#9889; Generate Script</button>
+    <button class="btn btn-ghost btn-sm" onclick="openScriptModal()" id="view-script-btn" disabled>View</button>
     <button class="btn btn-ghost btn-sm" onclick="copyScript()" id="copy-script-btn" disabled>Copy</button>
     <button class="btn btn-primary btn-sm" onclick="pushToRetell()" id="push-btn" disabled>Push to Retell</button>
   </div>
@@ -202,6 +211,20 @@
       <button class="btn btn-ghost" onclick="hideNewClientModal()">Cancel</button>
       <button class="btn btn-primary" onclick="createClient()">Create &amp; Copy Link</button>
     </div>
+  </div>
+</div>
+
+<!-- Script full-screen modal -->
+<div class="script-modal" id="script-modal">
+  <div class="script-modal-header">
+    <span class="script-modal-title">&#129302; Generated Script</span>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost btn-sm" onclick="copyScript()">Copy</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeScriptModal()">&#10005; Close</button>
+    </div>
+  </div>
+  <div class="script-modal-body">
+    <pre id="script-full-text"></pre>
   </div>
 </div>
 
@@ -311,6 +334,7 @@
     } else {
       preview.textContent = 'No script generated yet — configure goals above then click Generate.';
     }
+    document.getElementById('view-script-btn').disabled = !client.generatedScript;
     document.getElementById('copy-script-btn').disabled = !client.generatedScript;
     document.getElementById('push-btn').disabled = !client.generatedScript;
 
@@ -412,9 +436,20 @@
     if (!res.ok) { showToast(data.error, 'error'); return; }
     currentScript = data.client.generatedScript;
     document.getElementById('script-preview').textContent = currentScript.slice(0, 120) + '…';
+    document.getElementById('view-script-btn').disabled = false;
     document.getElementById('copy-script-btn').disabled = false;
     document.getElementById('push-btn').disabled = false;
     showToast('Script generated!', 'success');
+  }
+
+  function openScriptModal() {
+    if (!currentScript) return;
+    document.getElementById('script-full-text').textContent = currentScript;
+    document.getElementById('script-modal').classList.add('active');
+  }
+
+  function closeScriptModal() {
+    document.getElementById('script-modal').classList.remove('active');
   }
 
   function copyScript() {
