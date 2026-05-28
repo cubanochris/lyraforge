@@ -1,12 +1,11 @@
-﻿{
+{
   "name": "ai-script-generator",
   "version": "1.0.0",
   "description": "AI-powered call script generator for LyraForge voice receptionist",
   "main": "app.js",
   "scripts": {
-    "start":  "node app.js",
-    "dev":    "nodemon app.js",
-    "test":   "node test-generate.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.24.0",
