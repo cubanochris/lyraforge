@@ -149,4 +149,11 @@ router.post('/:id/push', adminAuth, async (req, res) => {
   }
 });
 
+// DELETE /api/clients/:id — remove a client (admin only)
+router.delete('/:id', adminAuth, (req, res) => {
+  const deleted = store.deleteClient(req.params.id);
+  if (!deleted) return res.status(404).json({ error: 'Client not found' });
+  res.json({ success: true });
+});
+
 module.exports = router;

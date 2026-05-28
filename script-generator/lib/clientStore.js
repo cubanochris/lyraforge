@@ -74,4 +74,11 @@ function listClients() {
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
-module.exports = { createClient, getClient, updateClient, listClients };
+function deleteClient(id) {
+  const file = clientPath(id);
+  if (!fs.existsSync(file)) return false;
+  fs.unlinkSync(file);
+  return true;
+}
+
+module.exports = { createClient, getClient, updateClient, listClients, deleteClient };

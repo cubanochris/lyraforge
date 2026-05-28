@@ -282,6 +282,7 @@
         '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openDetail(\'' + c.id + '\')">' +
           (c.status === 'review' ? 'Review →' : 'Edit') +
         '</button>' +
+        '<button class="btn btn-ghost btn-sm" style="color:#ef4444" onclick="event.stopPropagation();deleteClient(\'' + c.id + '\',\'' + escHtml(name) + '\')">Delete</button>' +
       '</div>';
     return div;
   }
@@ -438,6 +439,19 @@
   }
 
   function copyClientLink() { copyLink(currentClientId); }
+
+  async function deleteClient(id, name) {
+    if (!confirm('Delete ' + name + '? This cannot be undone.')) return;
+    var res = await fetch('/api/clients/' + id, {
+      method: 'DELETE', headers: { 'Authorization': authHeader() }
+    });
+    if (res.ok) {
+      showToast('Client deleted', 'success');
+      loadClients().then(renderPipeline);
+    } else {
+      showToast('Delete failed', 'error');
+    }
+  }
 
   function showPipeline() {
     document.getElementById('pipeline-view').style.display = '';
