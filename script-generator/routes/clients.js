@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const adminAuth = require('../middleware/auth');
 const store = require('../lib/clientStore');
+const callStore = require('../lib/callStore');
 
 function isAdmin(req) {
   const header = req.headers['authorization'] || '';
@@ -9,7 +11,13 @@ function isAdmin(req) {
   if (type !== 'Basic' || !encoded) return false;
   const decoded = Buffer.from(encoded, 'base64').toString();
   const password = decoded.slice(decoded.indexOf(':') + 1);
-  return process.env.ADMIN_PASSWORD && password === process.env.ADMIN_PASSWORD;
+  if (!process.env.ADMIN_PASSWORD) return false;
+  try {
+    return password.length === process.env.ADMIN_PASSWORD.length &&
+      crypto.timingSafeEqual(Buffer.from(password), Buffer.from(process.env.ADMIN_PASSWORD));
+  } catch (_) {
+    return false;
+  }
 }
 
 function buildCustomInstructions(client) {
@@ -154,6 +162,13 @@ router.delete('/:id', adminAuth, (req, res) => {
   const deleted = store.deleteClient(req.params.id);
   if (!deleted) return res.status(404).json({ error: 'Client not found' });
   res.json({ success: true });
+});
+
+// GET /api/clients/:id/calls — call log for a client (admin only)
+router.get('/:id/calls', adminAuth, (req, res) => {
+  const client = store.getClient(req.params.id);
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  res.json(callStore.listCalls(req.params.id));
 });
 
 module.exports = router;

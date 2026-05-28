@@ -16,7 +16,6 @@ app.use(cors({
   origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
-app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Rate limit: 20 generation requests per minute per IP
@@ -26,10 +25,14 @@ app.use('/api/scripts/generate', rateLimit({
   message: { success: false, error: 'Too many requests — slow down' }
 }));
 
-// ── Routes ──────────────────────────────────────────────────────────────────
+// ── Routes — webhooks MUST be before express.json() ─────────────────────────
 const scriptsRouter = require('./routes/scripts');
 const clientsRouter = require('./routes/clients');
 const retellRouter = require('./routes/retell');
+const webhooksRouter = require('./routes/webhooks');
+
+app.use('/api/webhooks', webhooksRouter);   // ← BEFORE express.json()
+app.use(express.json());                    // ← json parsing for all other routes
 
 app.use('/api/scripts', scriptsRouter);
 app.use('/api/clients', clientsRouter);

@@ -107,6 +107,21 @@
     .script-modal-title { font-size: 13px; font-weight: 700; color: #a855f7; }
     .script-modal-body { flex: 1; overflow-y: auto; padding: 24px; }
     .script-modal-body pre { font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.7; color: #e2e8f0; white-space: pre-wrap; word-break: break-word; }
+
+    /* Call log modal */
+    .calllog-modal { display: none; position: fixed; inset: 0; background: #0a0f1a; z-index: 450; flex-direction: column; }
+    .calllog-modal.active { display: flex; }
+    .calllog-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: #0d1424; border-bottom: 1px solid #1e293b; flex-shrink: 0; }
+    .calllog-modal-title { font-size: 13px; font-weight: 700; color: #22c55e; }
+    .calllog-modal-body { flex: 1; overflow-y: auto; padding: 20px; }
+    .call-row { background: #1e293b; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; display: grid; grid-template-columns: 160px 80px 80px 1fr; gap: 12px; align-items: start; }
+    .call-row-label { font-size: 10px; color: #64748b; margin-bottom: 2px; }
+    .call-row-val { font-size: 11px; color: #f8fafc; }
+    .sentiment-positive { color: #22c55e; }
+    .sentiment-negative { color: #ef4444; }
+    .sentiment-neutral { color: #94a3b8; }
+    .call-summary { font-size: 11px; color: #94a3b8; line-height: 1.5; }
+    .no-calls { font-size: 12px; color: #334155; font-style: italic; padding: 40px; text-align: center; }
   </style>
 </head>
 <body>
@@ -177,6 +192,7 @@
       <span class="status-pill" id="detail-status-pill"></span>
     </div>
     <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost btn-sm" onclick="showCallLog()">&#128222; Calls</button>
       <button class="btn btn-ghost btn-sm" onclick="copyClientLink()">Copy Client Link</button>
       <button class="btn btn-ghost btn-sm" onclick="saveClientDetail()">Save Changes</button>
     </div>
@@ -225,6 +241,17 @@
   </div>
   <div class="script-modal-body">
     <pre id="script-full-text"></pre>
+  </div>
+</div>
+
+<!-- Call log modal -->
+<div class="calllog-modal" id="calllog-modal">
+  <div class="calllog-modal-header">
+    <span class="calllog-modal-title">&#128222; Call Log</span>
+    <button class="btn btn-ghost btn-sm" onclick="closeCallLog()">&#10005; Close</button>
+  </div>
+  <div class="calllog-modal-body" id="calllog-body">
+    <div class="no-calls">Loading…</div>
   </div>
 </div>
 
@@ -502,6 +529,50 @@
 
   function closeScriptModal() {
     document.getElementById('script-modal').classList.remove('active');
+  }
+
+  async function showCallLog() {
+    document.getElementById('calllog-modal').classList.add('active');
+    document.getElementById('calllog-body').innerHTML = '<div class="no-calls">Loading…</div>';
+    try {
+      var res = await fetch('/api/clients/' + currentClientId + '/calls', {
+        headers: { 'Authorization': authHeader() }
+      });
+      if (!res.ok) {
+        document.getElementById('calllog-body').innerHTML = '<div class="no-calls">Failed to load calls (error ' + res.status + ')</div>';
+        return;
+      }
+      var calls = await res.json();
+      renderCallLog(calls);
+    } catch (_) {
+      document.getElementById('calllog-body').innerHTML = '<div class="no-calls">Could not reach server — check your connection.</div>';
+    }
+  }
+
+  function closeCallLog() {
+    document.getElementById('calllog-modal').classList.remove('active');
+  }
+
+  function renderCallLog(calls) {
+    var body = document.getElementById('calllog-body');
+    if (!calls.length) {
+      body.innerHTML = '<div class="no-calls">No calls recorded yet. Calls appear here after Retell sends webhook events.</div>';
+      return;
+    }
+    body.innerHTML = calls.map(function(c) {
+      var date = c.startTimestamp ? new Date(c.startTimestamp).toLocaleString() : '—';
+      var dur = c.durationMs ? Math.round(c.durationMs / 1000) + 's' : '—';
+      var rawSentiment = c.sentiment ? c.sentiment.toLowerCase() : '';
+      var sentimentClass = ['positive', 'negative', 'neutral'].includes(rawSentiment) ? 'sentiment-' + rawSentiment : 'sentiment-neutral';
+      var sentiment = rawSentiment || '—';
+      var summary = c.summary ? escHtml(c.summary) : '<span style="color:#475569">No summary yet</span>';
+      return '<div class="call-row">' +
+        '<div><div class="call-row-label">DATE</div><div class="call-row-val">' + escHtml(date) + '</div></div>' +
+        '<div><div class="call-row-label">DURATION</div><div class="call-row-val">' + escHtml(dur) + '</div></div>' +
+        '<div><div class="call-row-label">SENTIMENT</div><div class="call-row-val ' + sentimentClass + '">' + escHtml(sentiment) + '</div></div>' +
+        '<div><div class="call-row-label">SUMMARY</div><div class="call-summary">' + summary + '</div></div>' +
+        '</div>';
+    }).join('');
   }
 
   function copyScript() {
