@@ -167,20 +167,30 @@ function getAnalyticsOverview(rangeDays = DEFAULT_RANGE_DAYS) {
 
   const clients = store.listClients();
   const cutoffTime = rangeDays ? Date.now() - rangeDays * 86400000 : null;
+  const prevCutoffTime = rangeDays ? cutoffTime - rangeDays * 86400000 : null;
+
+  const callTimeOf = call => {
+    const t = call.startTimestamp || call.createdAt;
+    return t ? new Date(t).getTime() : null;
+  };
 
   const callsByClient = {};
   const allCalls = [];
+  const prevCalls = []; // calls in the immediately preceding window, for trend comparison
 
   clients.forEach(client => {
     const calls = callStore.listCalls(client.id, MAX_CALLS_FETCH);
-    const filtered = calls.filter(call => {
-      if (!cutoffTime) return true;
-      const callTime = call.startTimestamp || call.createdAt;
-      return callTime ? new Date(callTime).getTime() >= cutoffTime : false;
+    const current = [];
+    calls.forEach(call => {
+      if (!cutoffTime) { current.push(call); return; }
+      const t = callTimeOf(call);
+      if (t === null) return;
+      if (t >= cutoffTime) current.push(call);
+      else if (t >= prevCutoffTime && t < cutoffTime) prevCalls.push(call);
     });
-    if (filtered.length > 0) {
-      callsByClient[client.id] = filtered;
-      allCalls.push(...filtered.map(c => ({ ...c, clientId: client.id })));
+    if (current.length > 0) {
+      callsByClient[client.id] = current;
+      allCalls.push(...current.map(c => ({ ...c, clientId: client.id })));
     }
   });
 
@@ -223,20 +233,16 @@ function getAnalyticsOverview(rangeDays = DEFAULT_RANGE_DAYS) {
     }
   });
 
-  // Trend: compare second half vs first half of calls
-  let prevTotalCalls = 0, prevAvgDuration = 0, prevPositiveRate = 0;
-  if (totalCalls > 0) {
-    const mid = Math.floor(allCalls.length / 2);
-    const firstHalf = allCalls.slice(0, mid);
-    if (firstHalf.length > 0) {
-      prevTotalCalls = firstHalf.length;
-      prevAvgDuration = firstHalf.reduce((s, c) => s + (c.duration || c.durationMs || 0), 0) / firstHalf.length;
-      const firstPositive = firstHalf.filter(c =>
-        c.sentiment === 'positive' || c.sentimentScore > SENTIMENT_POSITIVE_THRESHOLD
-      ).length;
-      prevPositiveRate = (firstPositive / firstHalf.length) * 100;
-    }
-  }
+  // Trend: compare the current range against the immediately preceding window of
+  // equal length. All-time (rangeDays null) has no prior window, so trends are 0.
+  const hasPrevPeriod = rangeDays != null;
+  const prevTotalCalls = prevCalls.length;
+  const prevDuration = prevCalls.reduce((s, c) => s + (c.duration || c.durationMs || 0), 0);
+  const prevAvgDuration = prevTotalCalls > 0 ? prevDuration / prevTotalCalls : 0;
+  const prevPositiveCount = prevCalls.filter(c =>
+    c.sentiment === 'positive' || c.sentimentScore > SENTIMENT_POSITIVE_THRESHOLD
+  ).length;
+  const prevPositiveRate = prevTotalCalls > 0 ? (prevPositiveCount / prevTotalCalls) * 100 : 0;
 
   const clientsSummary = clients.map(client => {
     const clientCalls = callsByClient[client.id] || [];
@@ -264,9 +270,9 @@ function getAnalyticsOverview(rangeDays = DEFAULT_RANGE_DAYS) {
       positiveRate: Math.round(positiveRate),
       clientCount: activeClients,
       trends: {
-        totalCalls: totalCalls - prevTotalCalls,
-        avgDuration: avgDuration - prevAvgDuration,
-        positiveRate: positiveRate - prevPositiveRate,
+        totalCalls: hasPrevPeriod ? totalCalls - prevTotalCalls : 0,
+        avgDuration: hasPrevPeriod ? avgDuration - prevAvgDuration : 0,
+        positiveRate: hasPrevPeriod ? positiveRate - prevPositiveRate : 0,
         clientCount: 0
       }
     },

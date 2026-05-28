@@ -355,3 +355,32 @@ test('getOverview period string for all-time', () => {
 test('analyticsEngine exports RECENT_CALLS_LIMIT constant set to 10', () => {
   expect(analyticsEngine.RECENT_CALLS_LIMIT).toBe(10);
 });
+
+// ============ Test 18-19: getAnalyticsOverview global trend ============
+test('getAnalyticsOverview computes trends against the preceding window', () => {
+  const clientStore = require('../lib/clientStore');
+  const client = clientStore.createClient({ subscription: 'Starter' });
+  const now = Date.now();
+  const day = 86400000;
+  // Current 7-day window: 2 calls
+  callStore.upsertCall(client.id, 'cur-1', { status: 'ended', startTimestamp: now - day * 2, durationMs: 60000 });
+  callStore.upsertCall(client.id, 'cur-2', { status: 'ended', startTimestamp: now - day * 3, durationMs: 60000 });
+  // Preceding 7-day window (8-14 days ago): 1 call
+  callStore.upsertCall(client.id, 'prev-1', { status: 'ended', startTimestamp: now - day * 10, durationMs: 60000 });
+
+  const overview = analyticsEngine.getAnalyticsOverview(7);
+  expect(overview.summary.totalCalls).toBe(2); // preceding-window call excluded from current
+  expect(overview.summary.trends.totalCalls).toBe(1); // 2 current - 1 previous
+});
+
+test('getAnalyticsOverview returns zero trends for all-time (no preceding window)', () => {
+  const clientStore = require('../lib/clientStore');
+  const client = clientStore.createClient({});
+  callStore.upsertCall(client.id, 'c-1', { status: 'ended', startTimestamp: Date.now() - 86400000 * 100, durationMs: 60000 });
+
+  const overview = analyticsEngine.getAnalyticsOverview(null);
+  expect(overview.summary.totalCalls).toBe(1);
+  expect(overview.summary.trends.totalCalls).toBe(0);
+  expect(overview.summary.trends.avgDuration).toBe(0);
+  expect(overview.summary.trends.positiveRate).toBe(0);
+});

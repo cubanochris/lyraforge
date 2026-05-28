@@ -2,7 +2,6 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
-const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs');
 
@@ -18,15 +17,7 @@ app.use(cors({
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Rate limit: 20 generation requests per minute per IP
-app.use('/api/scripts/generate', rateLimit({
-  windowMs: 60000,
-  max: 20,
-  message: { success: false, error: 'Too many requests — slow down' }
-}));
-
 // ── Routes — webhooks MUST be before express.json() ─────────────────────────
-const scriptsRouter = require('./routes/scripts');
 const clientsRouter = require('./routes/clients');
 const retellRouter = require('./routes/retell');
 const analyticsRouter = require('./routes/analytics');
@@ -35,7 +26,6 @@ const webhooksRouter = require('./routes/webhooks');
 app.use('/api/webhooks', webhooksRouter);   // ← BEFORE express.json()
 app.use(express.json());                    // ← json parsing for all other routes
 
-app.use('/api/scripts', scriptsRouter);
 app.use('/api/clients', clientsRouter);
 app.use('/api/retell', retellRouter);
 app.use('/api/analytics', analyticsRouter);
@@ -74,6 +64,9 @@ if (require.main === module) {
     console.log(`   Health: http://localhost:${PORT}/health\n`);
     if (!process.env.ADMIN_PASSWORD) {
       console.warn('⚠️  WARNING: ADMIN_PASSWORD is not set\n');
+    }
+    if (!process.env.ALLOWED_ORIGINS) {
+      console.warn('⚠️  WARNING: ALLOWED_ORIGINS is not set — CORS is open to all origins (*)\n');
     }
   });
 }

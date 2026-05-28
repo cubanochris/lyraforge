@@ -1,26 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const crypto = require('crypto');
-const adminAuth = require('../middleware/auth');
+const { adminAuth, isAdmin } = require('../middleware/auth');
 const store = require('../lib/clientStore');
 const callStore = require('../lib/callStore');
 
 const TIER_RATES = { 'Starter': 497, 'Professional': 997, 'Business Pro': 1997, 'Enterprise': 3997 };
-
-function isAdmin(req) {
-  const header = req.headers['authorization'] || '';
-  const [type, encoded] = header.split(' ');
-  if (type !== 'Basic' || !encoded) return false;
-  const decoded = Buffer.from(encoded, 'base64').toString();
-  const password = decoded.slice(decoded.indexOf(':') + 1);
-  if (!process.env.ADMIN_PASSWORD) return false;
-  try {
-    return password.length === process.env.ADMIN_PASSWORD.length &&
-      crypto.timingSafeEqual(Buffer.from(password), Buffer.from(process.env.ADMIN_PASSWORD));
-  } catch (_) {
-    return false;
-  }
-}
 
 // POST /api/clients — create new client
 router.post('/', adminAuth, (req, res) => {
