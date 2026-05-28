@@ -29,6 +29,7 @@ app.use('/api/scripts/generate', rateLimit({
 const scriptsRouter = require('./routes/scripts');
 const clientsRouter = require('./routes/clients');
 const retellRouter = require('./routes/retell');
+const analyticsRouter = require('./routes/analytics');
 const webhooksRouter = require('./routes/webhooks');
 
 app.use('/api/webhooks', webhooksRouter);   // ← BEFORE express.json()
@@ -37,6 +38,7 @@ app.use(express.json());                    // ← json parsing for all other ro
 app.use('/api/scripts', scriptsRouter);
 app.use('/api/clients', clientsRouter);
 app.use('/api/retell', retellRouter);
+app.use('/api/analytics', analyticsRouter);
 
 // Admin dashboard — serve admin.html (auth checked client-side via API)
 app.get('/admin', (req, res) => {

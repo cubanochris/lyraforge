@@ -130,6 +130,316 @@
     .sentiment-neutral { color: #94a3b8; }
     .call-summary { font-size: 11px; color: #94a3b8; line-height: 1.5; }
     .no-calls { font-size: 12px; color: #334155; font-style: italic; padding: 40px; text-align: center; }
+
+    /* Analytics styling */
+    #analytics-view { display: none; padding: 20px; overflow-y: auto; min-height: calc(100vh - 53px); }
+    #analytics-view.active { display: block; }
+
+    .analytics-header {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .analytics-header button {
+      padding: 8px 16px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #f8fafc;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+
+    .analytics-header button:hover {
+      background: #334155;
+    }
+
+    .analytics-header button.active {
+      background: #22c55e;
+      color: white;
+      border-color: #22c55e;
+    }
+
+    .analytics-header input {
+      padding: 8px 12px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #f8fafc;
+      border-radius: 6px;
+      font-size: 12px;
+      flex: 1;
+      max-width: 250px;
+    }
+
+    .analytics-header input::placeholder {
+      color: #64748b;
+    }
+
+    .analytics-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .analytics-card {
+      border: 1px solid #334155;
+      padding: 20px;
+      background: #1e293b;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      border-left: 4px solid #22c55e;
+    }
+
+    .analytics-card h3 {
+      margin: 0 0 12px 0;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .analytics-card .value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #22c55e;
+      margin-bottom: 8px;
+    }
+
+    .analytics-card .trend {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .trend-up { color: #22c55e; }
+    .trend-down { color: #ef4444; }
+    .trend-neutral { color: #94a3b8; }
+
+    .analytics-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    @media (max-width: 1200px) {
+      .analytics-two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .analytics-panel {
+      border: 1px solid #334155;
+      padding: 20px;
+      background: #1e293b;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    .analytics-panel h3 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      color: #f8fafc;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .health-list, .tier-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .health-item, .tier-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      background: #0f172a;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .health-label, .tier-label {
+      color: #94a3b8;
+      text-transform: capitalize;
+    }
+
+    .health-count, .tier-count {
+      color: #f8fafc;
+      font-weight: 600;
+      background: #334155;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+    }
+
+    #clients-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    #clients-table thead {
+      background: #0f172a;
+    }
+
+    #clients-table th {
+      background: #0f172a;
+      padding: 12px;
+      text-align: left;
+      border-bottom: 2px solid #334155;
+      cursor: pointer;
+      user-select: none;
+      color: #94a3b8;
+      font-weight: 600;
+      transition: background 0.15s;
+    }
+
+    #clients-table th:hover {
+      background: #1e293b;
+      color: #f8fafc;
+    }
+
+    #clients-table td {
+      padding: 12px;
+      border-bottom: 1px solid #334155;
+      color: #f8fafc;
+    }
+
+    #clients-table tbody tr {
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+
+    #clients-table tbody tr:hover {
+      background: #0f172a;
+    }
+
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .status-pending { background: #f59e0b22; color: #f59e0b; }
+    .status-review { background: #0ea5e940; color: #0ea5e9; }
+    .status-scripted { background: #a855f722; color: #a855f7; }
+    .status-live { background: #22c55e22; color: #22c55e; }
+    .status-paused { background: #334155; color: #64748b; }
+
+    .panel-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+    }
+
+    .panel-overlay.active {
+      display: flex;
+      align-items: stretch;
+      justify-content: flex-end;
+    }
+
+    .panel-overlay .panel-content {
+      background: #1e293b;
+      width: 40%;
+      height: 100%;
+      padding: 0;
+      overflow-y: auto;
+      box-shadow: -2px 0 8px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: #0f172a;
+      border-bottom: 1px solid #334155;
+      flex-shrink: 0;
+    }
+
+    .panel-header h2 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #94a3b8;
+      transition: color 0.15s;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-btn:hover {
+      color: #f8fafc;
+    }
+
+    .panel-body {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .panel-detail-row {
+      margin-bottom: 16px;
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 12px;
+    }
+
+    .panel-detail-label {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .panel-detail-value {
+      font-size: 12px;
+      color: #f8fafc;
+    }
+
+    .panel-footer {
+      padding: 16px 20px;
+      background: #0f172a;
+      border-top: 1px solid #334155;
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
@@ -141,7 +451,7 @@
     <p>Admin Dashboard</p>
     <input type="password" id="password-input" placeholder="Enter admin password" />
     <div class="login-error" id="login-error">Incorrect password</div>
-    <button class="btn btn-primary" style="width:100%" onclick="login()">Sign In</button>
+    <button class="btn btn-primary" style="width:100%" id="login-btn">Sign In</button>
   </div>
 </div>
 
@@ -156,6 +466,92 @@
       <strong id="attention-count">0</strong> need attention
     </span>
     <button class="btn btn-primary" onclick="showNewClientModal()">+ New Client</button>
+    <button class="btn btn-ghost" id="btn-analytics" style="display:none;">Analytics</button>
+    <button class="btn btn-ghost" id="btn-pipeline" style="display:none;">Pipeline</button>
+  </div>
+</div>
+
+<!-- Analytics view -->
+<div id="analytics-view">
+  <div class="analytics-header">
+    <button data-range="7">7 Days</button>
+    <button data-range="30" class="active">30 Days</button>
+    <button data-range="90">90 Days</button>
+    <button data-range="all">All Time</button>
+    <input type="search" id="search-clients" placeholder="Search clients...">
+    <button id="export-csv" class="btn btn-purple">📥 Export CSV</button>
+  </div>
+
+  <div class="analytics-cards">
+    <div class="analytics-card" data-metric="totalCalls">
+      <h3>Total Calls</h3>
+      <div class="value">0</div>
+      <div class="trend"></div>
+    </div>
+    <div class="analytics-card" data-metric="avgDuration">
+      <h3>Avg Duration</h3>
+      <div class="value">0m 0s</div>
+      <div class="trend"></div>
+    </div>
+    <div class="analytics-card" data-metric="positiveRate">
+      <h3>Positive Sentiment %</h3>
+      <div class="value">0%</div>
+      <div class="trend"></div>
+    </div>
+    <div class="analytics-card" data-metric="clientCount">
+      <h3>Active Clients</h3>
+      <div class="value">0</div>
+      <div class="trend"></div>
+    </div>
+  </div>
+
+  <div class="analytics-two-col">
+    <div class="analytics-panel" id="pipeline-health">
+      <h3>Pipeline Health</h3>
+      <div id="pipeline-content" class="health-list">Loading...</div>
+    </div>
+    <div class="analytics-panel" id="subscription-tiers">
+      <h3>Subscription Tiers</h3>
+      <div id="subscription-content" class="tier-list">Loading...</div>
+    </div>
+  </div>
+
+  <div class="analytics-panel">
+    <h3>Call Volume</h3>
+    <div class="chart-container">
+      <canvas id="chart-call-volume"></canvas>
+    </div>
+  </div>
+
+  <div class="analytics-panel">
+    <h3>Clients</h3>
+    <table id="clients-table">
+      <thead>
+        <tr>
+          <th data-col="businessName">Business Name</th>
+          <th data-col="calls">Calls</th>
+          <th data-col="avgDuration">Avg Duration</th>
+          <th data-col="sentiment">Sentiment</th>
+          <th data-col="status">Status</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Client detail panel -->
+  <div id="client-panel" class="panel-overlay">
+    <div class="panel-content">
+      <div class="panel-header">
+        <h2 id="client-name">Client Details</h2>
+        <button class="close-btn" id="close-client-panel">&times;</button>
+      </div>
+      <div class="panel-body" id="client-detail-content">Loading...</div>
+      <div class="panel-footer">
+        <button class="btn btn-ghost" id="close-panel-btn">Close</button>
+        <button class="btn btn-primary" id="manage-client-btn">Manage in Admin</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -277,439 +673,8 @@
 
 <div class="toast" id="toast"></div>
 
-<script>
-  const GOALS = ['book_appointment','qualify_lead','take_message','handle_objections','collect_info','schedule_callback'];
-  const TONES = ['professional','friendly','formal','warm','energetic'];
-  const VOICES = ['ElevenLabs - Rachel','ElevenLabs - Adam','Cartesia - Default'];
-
-  let password = '';
-  let currentClientId = null;
-  let currentScript = null;
-
-  function authHeader() {
-    return 'Basic ' + btoa('admin:' + password);
-  }
-
-  async function login() {
-    const pw = document.getElementById('password-input').value;
-    const res = await fetch('/api/clients', { headers: { 'Authorization': 'Basic ' + btoa('admin:' + pw) } });
-    if (res.status === 401) {
-      document.getElementById('login-error').style.display = 'block';
-      return;
-    }
-    password = pw;
-    sessionStorage.setItem('adminPassword', pw);
-    document.getElementById('login-screen').style.display = 'none';
-    const clients = await res.json();
-    renderPipeline(clients);
-  }
-
-  document.getElementById('password-input').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
-
-  async function loadClients() {
-    const res = await fetch('/api/clients', { headers: { 'Authorization': authHeader() } });
-    return res.json();
-  }
-
-  function timeAgo(iso) {
-    if (!iso) return '';
-    const diff = Date.now() - new Date(iso).getTime();
-    const m = Math.floor(diff / 60000);
-    if (m < 60) return m + 'm ago';
-    const h = Math.floor(m / 60);
-    if (h < 24) return h + 'h ago';
-    return Math.floor(h / 24) + 'd ago';
-  }
-
-  function renderPipeline(clients) {
-    const cols = { pending: [], review: [], scripted: [], live: [] };
-    clients.forEach(c => { if (cols[c.status]) cols[c.status].push(c); });
-
-    const attention = (cols.review.length || 0) + (cols.scripted.length || 0);
-    document.getElementById('attention-count').textContent = attention;
-
-    for (const [status, list] of Object.entries(cols)) {
-      document.getElementById('count-' + status).textContent = list.length;
-      const el = document.getElementById('col-' + status);
-      el.innerHTML = list.length === 0 ? '<div class="empty">No clients</div>' : '';
-      list.forEach(c => el.appendChild(buildCard(c)));
-    }
-  }
-
-  var TIERS = ['Starter', 'Professional', 'Business Pro', 'Enterprise'];
-  var TIER_CLASSES = { 'Starter': 'sub-starter', 'Professional': 'sub-professional', 'Business Pro': 'sub-business-pro', 'Enterprise': 'sub-enterprise' };
-
-  function buildCard(c) {
-    const div = document.createElement('div');
-    div.className = 'card ' + c.status;
-    const name = (c.businessInfo && c.businessInfo.businessName) || (c.clientContact && c.clientContact.name) || 'Unnamed';
-    const industry = (c.businessInfo && c.businessInfo.industry) || '';
-    const tone = (c.agentConfig && c.agentConfig.tone) || '';
-    const sub = c.subscription || '';
-    const subClass = TIER_CLASSES[sub] || 'sub-starter';
-    const subOptions = ['', ...TIERS].map(function(t) {
-      return '<option value="' + t + '"' + (sub === t ? ' selected' : '') + '>' + (t || '-- no tier --') + '</option>';
-    }).join('');
-    div.innerHTML =
-      '<div class="card-header">' +
-        '<div class="card-name">' + escHtml(name) + '</div>' +
-        '<div class="card-tier">' +
-          '<span class="card-tier-label">TIER:</span>' +
-          '<select class="sub-select ' + subClass + '" onchange="event.stopPropagation();updateSubscription(\'' + c.id + '\',this)" onclick="event.stopPropagation()">' + subOptions + '</select>' +
-        '</div>' +
-      '</div>' +
-      '<div class="card-meta">' + timeAgo(c.updatedAt) + '</div>' +
-      '<div class="card-sub">' + escHtml([industry, tone].filter(Boolean).join(' · ')) + '</div>' +
-      '<div class="card-actions">' +
-        (c.status === 'pending' ? '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();copyLink(\'' + c.id + '\')">Copy Link</button>' : '') +
-        (c.status === 'scripted' ? '<button class="btn btn-purple btn-sm" onclick="event.stopPropagation();openDetailAndPush(\'' + c.id + '\')">Push to Retell</button>' : '') +
-        '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openDetail(\'' + c.id + '\')">' +
-          (c.status === 'review' ? 'Review →' : 'Edit') +
-        '</button>' +
-        '<button class="btn btn-ghost btn-sm" style="color:#ef4444" onclick="event.stopPropagation();deleteClient(\'' + c.id + '\',\'' + escHtml(name) + '\')">Delete</button>' +
-      '</div>';
-    return div;
-  }
-
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  async function openDetail(id) {
-    const [clientRes, agentsRes, voicesRes, phonesRes] = await Promise.all([
-      fetch('/api/clients/' + id, { headers: { 'Authorization': authHeader() } }),
-      fetch('/api/retell/agents', { headers: { 'Authorization': authHeader() } }),
-      fetch('/api/retell/voices', { headers: { 'Authorization': authHeader() } }),
-      fetch('/api/retell/phone-numbers', { headers: { 'Authorization': authHeader() } })
-    ]);
-    const client = await clientRes.json();
-    const retell = {
-      agents: agentsRes.ok ? await agentsRes.json() : [],
-      voices: voicesRes.ok ? await voicesRes.json() : [],
-      phones: phonesRes.ok ? await phonesRes.json() : []
-    };
-    currentClientId = id;
-    currentScript = client.generatedScript || null;
-
-    document.getElementById('detail-name').textContent = (client.businessInfo && client.businessInfo.businessName) || (client.clientContact && client.clientContact.name) || 'Client';
-    const pill = document.getElementById('detail-status-pill');
-    pill.textContent = client.status.toUpperCase();
-    pill.className = 'status-pill pill-' + client.status;
-
-    renderBizFields(client.businessInfo || {});
-    renderCfgFields(client.agentConfig || {}, retell);
-
-    const preview = document.getElementById('script-preview');
-    if (client.generatedScript) {
-      preview.textContent = client.generatedScript.slice(0, 120) + '…';
-    } else {
-      preview.textContent = 'No script generated yet — configure goals above then click Generate.';
-    }
-    document.getElementById('view-script-btn').disabled = !client.generatedScript;
-    document.getElementById('copy-script-btn').disabled = !client.generatedScript;
-    document.getElementById('push-btn').disabled = !client.generatedScript;
-
-    document.getElementById('pipeline-view').style.display = 'none';
-    document.getElementById('detail-view').classList.add('active');
-  }
-
-  async function openDetailAndPush(id) {
-    await openDetail(id);
-    pushToRetell();
-  }
-
-  function renderBizFields(b) {
-    const fields = [
-      ['businessName','Business Name','text'], ['industry','Industry / Type','text'],
-      ['phone','Phone','text'], ['location','Location / City','text'],
-      ['website','Website','text'], ['hours','Business Hours','text'],
-      ['languages','Languages Spoken','text'], ['services','Services Offered','textarea'],
-      ['pricing','Pricing Info','text'], ['staffNames','Key Staff Names','text'],
-      ['bookingLink','Booking Link','text'], ['insurancePayment','Insurance / Payment','text'],
-      ['faqs','FAQs','textarea'], ['afterHours','After-Hours Message','text'],
-      ['promotions','Current Promotions','text'], ['additionalContext','Additional Context','textarea']
-    ];
-    document.getElementById('biz-fields').innerHTML = fields.map(function(f) {
-      var key = f[0], label = f[1], type = f[2];
-      return '<div class="field"><label>' + label + '</label>' +
-        (type === 'textarea'
-          ? '<textarea id="biz-' + key + '" rows="2">' + escHtml(b[key] || '') + '</textarea>'
-          : '<input type="text" id="biz-' + key + '" value="' + escHtml(b[key] || '') + '" />') +
-        '</div>';
-    }).join('');
-  }
-
-  function renderCfgFields(c, retell) {
-    retell = retell || { agents: [], voices: [], phones: [] };
-    const goals = c.goals || [];
-    const goalsHtml = GOALS.map(function(g) {
-      var selected = goals.includes(g);
-      return '<span class="goal-tag' + (selected ? ' selected' : '') + '" onclick="toggleGoal(\'' + g + '\',this)">' + g.replace(/_/g,' ') + '</span>';
-    }).join('');
-
-    // Agent dropdown or text fallback
-    var agentField;
-    if (retell.agents.length) {
-      agentField = '<select id="cfg-retell-id">' +
-        '<option value="">-- select agent --</option>' +
-        retell.agents.map(function(a) {
-          return '<option value="' + escHtml(a.agent_id) + '"' + (c.retellAgentId === a.agent_id ? ' selected' : '') + '>' + escHtml(a.agent_name || a.agent_id) + '</option>';
-        }).join('') +
-        '</select>';
-    } else {
-      agentField = '<input type="text" id="cfg-retell-id" value="' + escHtml(c.retellAgentId||'') + '" placeholder="agent_xxxxxx" />';
-    }
-
-    // Phone number dropdown or text fallback
-    var phoneField;
-    if (retell.phones.length) {
-      phoneField = '<select id="cfg-retell-phone">' +
-        '<option value="">-- select number --</option>' +
-        retell.phones.map(function(p) {
-          var label = (p.phone_number_pretty || p.phone_number) + (p.agent_id ? ' → ' + p.agent_id : '');
-          return '<option value="' + escHtml(p.phone_number) + '"' + (c.retellPhoneNumber === p.phone_number ? ' selected' : '') + '>' + escHtml(label) + '</option>';
-        }).join('') +
-        '</select>';
-    } else {
-      phoneField = '<input type="text" id="cfg-retell-phone" value="' + escHtml(c.retellPhoneNumber||'') + '" placeholder="+1xxxxxxxxxx" />';
-    }
-
-    // Voice dropdown or text fallback
-    var voiceField;
-    if (retell.voices.length) {
-      voiceField = '<select id="cfg-voice">' +
-        '<option value="">-- select voice --</option>' +
-        retell.voices.map(function(v) {
-          var label = v.voice_name + ' (' + (v.provider || '') + (v.gender ? ', ' + v.gender : '') + (v.accent ? ', ' + v.accent : '') + ')';
-          return '<option value="' + escHtml(v.voice_id) + '"' + (c.voiceSelection === v.voice_id ? ' selected' : '') + '>' + escHtml(label) + '</option>';
-        }).join('') +
-        '</select>';
-    } else {
-      voiceField = '<select id="cfg-voice">' + VOICES.map(function(v){ return '<option' + (c.voiceSelection===v?' selected':'') + '>' + v + '</option>'; }).join('') + '</select>';
-    }
-
-    document.getElementById('cfg-fields').innerHTML =
-      '<div class="field"><label>Call Goals (click to toggle)</label><div class="goals-list" id="goals-list">' + goalsHtml + '</div></div>' +
-      '<div class="field"><label>Tone</label><select id="cfg-tone">' + TONES.map(function(t){ return '<option' + (c.tone===t?' selected':'') + '>' + t + '</option>'; }).join('') + '</select></div>' +
-      '<div class="field"><label>Max Duration (minutes)</label><input type="number" id="cfg-duration" value="' + (c.maxDurationMinutes||5) + '" min="1" max="30" /></div>' +
-      '<div class="field"><label>Escalation Rules</label><textarea id="cfg-escalation" rows="2">' + escHtml(c.escalationRules||'') + '</textarea></div>' +
-      '<div class="field"><label>Objection Style</label><select id="cfg-objection">' + ['soft','assertive','neutral'].map(function(s){ return '<option' + (c.objectionHandlingStyle===s?' selected':'') + '>' + s + '</option>'; }).join('') + '</select></div>' +
-      '<div class="field"><label>Competitor Handling</label><input type="text" id="cfg-competitor" value="' + escHtml(c.competitorHandling||'') + '" /></div>' +
-      '<div class="field"><label>Custom Instructions</label><textarea id="cfg-custom" rows="3">' + escHtml(c.customInstructions||'') + '</textarea></div>' +
-      '<div class="field"><label>Retell Agent</label>' + agentField + '</div>' +
-      '<div class="field"><label>Phone Number</label>' + phoneField + '</div>' +
-      '<div class="field"><label>Voice</label>' + voiceField + '</div>';
-  }
-
-  function toggleGoal(goal, el) {
-    el.classList.toggle('selected');
-  }
-
-  function collectBizFields() {
-    var keys = ['businessName','industry','phone','location','website','hours','languages',
-      'services','pricing','staffNames','bookingLink','insurancePayment','faqs','afterHours','promotions','additionalContext'];
-    var out = {};
-    keys.forEach(function(k) { var el = document.getElementById('biz-' + k); if (el) out[k] = el.value; });
-    return out;
-  }
-
-  function collectCfgFields() {
-    var goals = Array.from(document.querySelectorAll('#goals-list .goal-tag.selected'))
-      .map(function(el) { return el.textContent.trim().replace(/ /g,'_'); });
-    return {
-      goals: goals,
-      tone: document.getElementById('cfg-tone') ? document.getElementById('cfg-tone').value : 'professional',
-      maxDurationMinutes: parseInt(document.getElementById('cfg-duration') ? document.getElementById('cfg-duration').value : '5') || 5,
-      escalationRules: document.getElementById('cfg-escalation') ? document.getElementById('cfg-escalation').value : '',
-      objectionHandlingStyle: document.getElementById('cfg-objection') ? document.getElementById('cfg-objection').value : 'soft',
-      competitorHandling: document.getElementById('cfg-competitor') ? document.getElementById('cfg-competitor').value : '',
-      customInstructions: document.getElementById('cfg-custom') ? document.getElementById('cfg-custom').value : '',
-      retellAgentId: document.getElementById('cfg-retell-id') ? document.getElementById('cfg-retell-id').value : '',
-      retellPhoneNumber: document.getElementById('cfg-retell-phone') ? document.getElementById('cfg-retell-phone').value : '',
-      voiceSelection: document.getElementById('cfg-voice') ? document.getElementById('cfg-voice').value : ''
-    };
-  }
-
-  async function saveClientDetail() {
-    var res = await fetch('/api/clients/' + currentClientId, {
-      method: 'PUT',
-      headers: { 'Authorization': authHeader(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ businessInfo: collectBizFields(), agentConfig: collectCfgFields() })
-    });
-    if (res.ok) {
-      var el = document.getElementById('save-confirm');
-      el.style.display = 'block';
-      setTimeout(function() { el.style.display = 'none'; }, 2000);
-    } else {
-      showToast('Save failed', 'error');
-    }
-  }
-
-  async function generateScript() {
-    await saveClientDetail();
-    showToast('Generating script…', 'success');
-    var res = await fetch('/api/clients/' + currentClientId + '/generate', {
-      method: 'POST', headers: { 'Authorization': authHeader() }
-    });
-    var data = await res.json();
-    if (!res.ok) { showToast(data.error, 'error'); return; }
-    currentScript = data.client.generatedScript;
-    document.getElementById('script-preview').textContent = currentScript.slice(0, 120) + '…';
-    document.getElementById('view-script-btn').disabled = false;
-    document.getElementById('copy-script-btn').disabled = false;
-    document.getElementById('push-btn').disabled = false;
-    showToast('Script generated!', 'success');
-  }
-
-  function openScriptModal() {
-    if (!currentScript) return;
-    document.getElementById('script-full-text').textContent = currentScript;
-    document.getElementById('script-modal').classList.add('active');
-  }
-
-  function closeScriptModal() {
-    document.getElementById('script-modal').classList.remove('active');
-  }
-
-  async function showCallLog() {
-    document.getElementById('calllog-modal').classList.add('active');
-    document.getElementById('calllog-body').innerHTML = '<div class="no-calls">Loading…</div>';
-    try {
-      var res = await fetch('/api/clients/' + currentClientId + '/calls', {
-        headers: { 'Authorization': authHeader() }
-      });
-      if (!res.ok) {
-        document.getElementById('calllog-body').innerHTML = '<div class="no-calls">Failed to load calls (error ' + res.status + ')</div>';
-        return;
-      }
-      var calls = await res.json();
-      renderCallLog(calls);
-    } catch (_) {
-      document.getElementById('calllog-body').innerHTML = '<div class="no-calls">Could not reach server — check your connection.</div>';
-    }
-  }
-
-  function closeCallLog() {
-    document.getElementById('calllog-modal').classList.remove('active');
-  }
-
-  function renderCallLog(calls) {
-    var body = document.getElementById('calllog-body');
-    if (!calls.length) {
-      body.innerHTML = '<div class="no-calls">No calls recorded yet. Calls appear here after Retell sends webhook events.</div>';
-      return;
-    }
-    body.innerHTML = calls.map(function(c) {
-      var date = c.startTimestamp ? new Date(c.startTimestamp).toLocaleString() : '—';
-      var dur = c.durationMs ? Math.round(c.durationMs / 1000) + 's' : '—';
-      var rawSentiment = c.sentiment ? c.sentiment.toLowerCase() : '';
-      var sentimentClass = ['positive', 'negative', 'neutral'].includes(rawSentiment) ? 'sentiment-' + rawSentiment : 'sentiment-neutral';
-      var sentiment = rawSentiment || '—';
-      var summary = c.summary ? escHtml(c.summary) : '<span style="color:#475569">No summary yet</span>';
-      return '<div class="call-row">' +
-        '<div><div class="call-row-label">DATE</div><div class="call-row-val">' + escHtml(date) + '</div></div>' +
-        '<div><div class="call-row-label">DURATION</div><div class="call-row-val">' + escHtml(dur) + '</div></div>' +
-        '<div><div class="call-row-label">SENTIMENT</div><div class="call-row-val ' + sentimentClass + '">' + escHtml(sentiment) + '</div></div>' +
-        '<div><div class="call-row-label">SUMMARY</div><div class="call-summary">' + summary + '</div></div>' +
-        '</div>';
-    }).join('');
-  }
-
-  function copyScript() {
-    if (!currentScript) return;
-    navigator.clipboard.writeText(currentScript).then(function() { showToast('Copied!', 'success'); });
-  }
-
-  async function pushToRetell() {
-    var res = await fetch('/api/clients/' + currentClientId + '/push', {
-      method: 'POST', headers: { 'Authorization': authHeader() }
-    });
-    var data = await res.json();
-    if (!res.ok) { showToast(data.error, 'error'); return; }
-    showToast('Pushed to Retell — agent is live!', 'success');
-    document.getElementById('detail-status-pill').textContent = 'LIVE';
-    document.getElementById('detail-status-pill').className = 'status-pill pill-live';
-  }
-
-  function copyLink(id) {
-    var url = location.origin + '/client/' + id;
-    navigator.clipboard.writeText(url).then(function() { showToast('Link copied!', 'success'); });
-  }
-
-  function copyClientLink() { copyLink(currentClientId); }
-
-  async function deleteClient(id, name) {
-    if (!confirm('Delete ' + name + '? This cannot be undone.')) return;
-    var res = await fetch('/api/clients/' + id, {
-      method: 'DELETE', headers: { 'Authorization': authHeader() }
-    });
-    if (res.ok) {
-      showToast('Client deleted', 'success');
-      loadClients().then(renderPipeline);
-    } else {
-      showToast('Delete failed', 'error');
-    }
-  }
-
-  function showPipeline() {
-    document.getElementById('pipeline-view').style.display = '';
-    document.getElementById('detail-view').classList.remove('active');
-    loadClients().then(renderPipeline);
-  }
-
-  function showNewClientModal() { document.getElementById('new-client-modal').classList.add('active'); }
-  function hideNewClientModal() { document.getElementById('new-client-modal').classList.remove('active'); }
-
-  async function createClient() {
-    var name = document.getElementById('nc-name').value;
-    var email = document.getElementById('nc-email').value;
-    var sub = document.getElementById('nc-subscription').value;
-    var notes = document.getElementById('nc-notes').value;
-    var res = await fetch('/api/clients', {
-      method: 'POST',
-      headers: { 'Authorization': authHeader(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ clientContact: { name: name, email: email }, subscription: sub, internalNotes: notes })
-    });
-    var data = await res.json();
-    if (!res.ok) { showToast('Failed to create client', 'error'); return; }
-    navigator.clipboard.writeText(data.clientUrl).then(function() {
-      showToast('Client created — link copied!', 'success');
-    });
-    hideNewClientModal();
-    document.getElementById('nc-name').value = '';
-    document.getElementById('nc-email').value = '';
-    document.getElementById('nc-subscription').value = '';
-    document.getElementById('nc-notes').value = '';
-    loadClients().then(renderPipeline);
-  }
-
-  async function updateSubscription(id, selectEl) {
-    var tier = selectEl.value;
-    var res = await fetch('/api/clients/' + id, {
-      method: 'PUT',
-      headers: { 'Authorization': authHeader(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ subscription: tier })
-    });
-    if (!res.ok) { showToast('Failed to update tier', 'error'); return; }
-    // Update badge class
-    var newClass = tier ? (TIER_CLASSES[tier] || 'sub-starter') : 'sub-starter';
-    selectEl.className = 'sub-select ' + newClass;
-    showToast((tier || 'No tier') + ' saved', 'success');
-  }
-
-  function showToast(msg, type) {
-    var t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast show ' + type;
-    setTimeout(function() { t.className = 'toast'; }, 3000);
-  }
-
-  // Auto-login if password saved in session
-  var saved = sessionStorage.getItem('adminPassword');
-  if (saved) {
-    document.getElementById('password-input').value = saved;
-    login();
-  }
-</script>
+<script src="/js/common.js"></script>
+<script src="/js/admin.js"></script>
+<script src="/js/analytics.js"></script>
 </body>
 </html>
