@@ -56,11 +56,15 @@ test('listClients returns all clients sorted by updatedAt descending', () => {
   expect(list[0].updatedAt >= list[1].updatedAt).toBe(true);
 });
 
-test('createClient seeds leadCapture defaults', () => {
+test('createClient seeds retell and lifecycle defaults', () => {
   const client = store.createClient({ clientContact: { name: 'Dana' } });
   expect(client.agentConfig.leadCapture).toEqual({
     enabled: true, mode: 'store', forwardEmail: '', forwardWebhookUrl: '', forwardSms: ''
   });
+  expect(client.agentConfig.retellLlmId).toBe('');
+  expect(client.lastSyncedAgentVersion).toBeNull();
+  expect(client.lastPublishedAgentVersion).toBeNull();
+  expect(client.lastGoLiveAt).toBeNull();
 });
 
 test('findClientByAgentId returns the client whose agentConfig.retellAgentId matches', () => {

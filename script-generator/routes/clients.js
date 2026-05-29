@@ -5,6 +5,10 @@ const store = require('../lib/clientStore');
 const callStore = require('../lib/callStore');
 const { buildCaptureLeadTool } = require('../services/retellToolConfig');
 const leadStore = require('../lib/leadStore');
+const {
+  createLlm, createAgent, createPhoneNumber,
+  publishAgent, updatePhoneNumber
+} = require('../services/retell');
 
 const TIER_RATES = { 'Starter': 497, 'Professional': 997, 'Business Pro': 1997, 'Enterprise': 3997 };
 
@@ -207,6 +211,96 @@ router.post('/:id/push', adminAuth, async (req, res) => {
   }
 });
 
+// POST /api/clients/:id/retell-provision — create Retell LLM + agent + phone number (admin only)
+router.post('/:id/retell-provision', adminAuth, async (req, res) => {
+  const client = store.getClient(req.params.id);
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  if (!process.env.RETELL_API_KEY) return res.status(400).json({ error: 'Set RETELL_API_KEY' });
+  const { voiceId, areaCode, agentName } = req.body || {};
+  if (!voiceId) return res.status(400).json({ error: 'voiceId is required' });
+  if (!areaCode) return res.status(400).json({ error: 'areaCode is required' });
+  if (client.agentConfig && client.agentConfig.retellAgentId) {
+    return res.status(409).json({ error: 'Agent already provisioned for this client' });
+  }
+
+  const saved = { retellLlmId: (client.agentConfig && client.agentConfig.retellLlmId) || '' };
+  try {
+    let llmId = saved.retellLlmId;
+    if (!llmId) {
+      const llm = await createLlm({});
+      llmId = llm.llm_id;
+      saved.retellLlmId = llmId;
+      const afterLlm = store.getClient(req.params.id);
+      store.updateClient(req.params.id, { agentConfig: { ...afterLlm.agentConfig, retellLlmId: llmId } });
+    }
+
+    const agentResp = await createAgent({
+      response_engine: { type: 'retell-llm', llm_id: llmId },
+      voice_id: voiceId,
+      ...(agentName ? { agent_name: agentName } : {})
+    });
+    const agentId = agentResp.agent_id;
+    saved.retellAgentId = agentId;
+    const afterAgent = store.getClient(req.params.id);
+    store.updateClient(req.params.id, { agentConfig: { ...afterAgent.agentConfig, retellAgentId: agentId } });
+
+    const phoneResp = await createPhoneNumber({
+      area_code: parseInt(areaCode, 10),
+      inbound_agents: [{ agent_id: agentId, weight: 1 }]
+    });
+    const phoneNumber = phoneResp.phone_number;
+    const afterPhone = store.getClient(req.params.id);
+    store.updateClient(req.params.id, { agentConfig: { ...afterPhone.agentConfig, retellPhoneNumber: phoneNumber } });
+
+    res.json({ llmId, agentId, phoneNumber });
+  } catch (err) {
+    console.error('[retell-provision]', err);
+    res.status(502).json({ step: detectStep(saved), error: err.message, saved });
+  }
+});
+
+function detectStep(saved) {
+  if (!saved.retellLlmId) return 'createLlm';
+  if (!saved.retellAgentId) return 'createAgent';
+  return 'createPhoneNumber';
+}
+
+// POST /api/clients/:id/retell-golive — publish agent + repoint phone number (admin only)
+router.post('/:id/retell-golive', adminAuth, async (req, res) => {
+  const client = store.getClient(req.params.id);
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  const { retellAgentId, retellPhoneNumber } = client.agentConfig || {};
+  if (!retellAgentId) return res.status(400).json({ error: 'Provision the agent first' });
+  if (client.lastSyncedAgentVersion == null) return res.status(400).json({ error: 'Push to Retell first' });
+  if (client.lastSyncedAgentVersion === client.lastPublishedAgentVersion) {
+    return res.status(400).json({ error: 'Already live on this version — push new changes first' });
+  }
+
+  try {
+    const version = client.lastSyncedAgentVersion;
+    await publishAgent(retellAgentId, version);
+    if (retellPhoneNumber) {
+      await updatePhoneNumber(retellPhoneNumber, {
+        inbound_agents: [{ agent_id: retellAgentId, agent_version: 'latest_published', weight: 1 }]
+      });
+    }
+    store.updateClient(req.params.id, {
+      status: 'live',
+      lastGoLiveAt: new Date().toISOString(),
+      lastPublishedAgentVersion: version
+    });
+    res.json({
+      ok: true,
+      publishedVersion: version,
+      phoneNumber: retellPhoneNumber || null,
+      ...(retellPhoneNumber ? {} : { note: 'No phone number linked — agent published but calls will not route' })
+    });
+  } catch (err) {
+    console.error('[retell-golive]', err);
+    res.status(502).json({ error: err.message });
+  }
+});
+
 // DELETE /api/clients/:id — remove a client (admin only)
 router.delete('/:id', adminAuth, (req, res) => {
   const deleted = store.deleteClient(req.params.id);
@@ -250,7 +344,13 @@ router.post('/:id/retell-sync', adminAuth, async (req, res) => {
       secret: process.env.FUNCTION_SECRET
     });
     if (result.scriptPushed) {
-      store.updateClient(client.id, { lastPushedAt: new Date().toISOString(), status: 'live' });
+      store.updateClient(client.id, {
+        lastPushedAt: new Date().toISOString(),
+        status: 'live',
+        lastSyncedAgentVersion: result.agentVersion
+      });
+    } else if (result.agentVersion != null) {
+      store.updateClient(client.id, { lastSyncedAgentVersion: result.agentVersion });
     }
     res.json({
       ok: true,

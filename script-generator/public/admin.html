@@ -499,6 +499,7 @@
     <button class="btn btn-primary" onclick="showNewClientModal()" aria-label="Create new client">+ New Client</button>
     <button class="btn btn-ghost" id="btn-analytics" style="display:none;" aria-label="View analytics dashboard">Analytics</button>
     <button class="btn btn-ghost" id="btn-pipeline" style="display:none;" aria-label="View pipeline">Pipeline</button>
+    <button class="btn btn-ghost" id="btn-retell" style="display:none;" aria-label="Retell workspace" onclick="showRetell()">Retell</button>
   </div>
 </div>
 
@@ -617,6 +618,23 @@
   </div>
 </div>
 
+<div id="retell-view" style="display:none; padding:20px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <h2 style="font-size:15px; font-weight:700; color:#f8fafc; margin:0;">Retell Workspace</h2>
+    <button class="btn btn-ghost btn-sm" onclick="refreshRetellWorkspace()">&#8635; Refresh</button>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+    <div>
+      <div style="font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Agents</div>
+      <div id="retell-agents-list" style="font-size:12px; color:#94a3b8;">Loading…</div>
+    </div>
+    <div>
+      <div style="font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; margin-bottom:8px;">Phone Numbers</div>
+      <div id="retell-phones-list" style="font-size:12px; color:#94a3b8;">Loading…</div>
+    </div>
+  </div>
+</div>
+
 <!-- Pipeline view -->
 <div class="pipeline" id="pipeline-view">
   <div class="column pending">
@@ -676,6 +694,21 @@
       <div id="cfg-fields"></div>
     </div>
   </div>
+  <div id="retell-client-section" style="background:#0d1424; border:1px solid #1e293b; border-radius:10px; padding:16px 20px; margin-top:16px; font-size:12px;">
+    <div style="font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; margin-bottom:12px;">Retell Agent</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; color:#94a3b8; margin-bottom:12px;">
+      <div><span style="color:#475569">Agent ID:</span> <span id="rc-agent-id">—</span></div>
+      <div><span style="color:#475569">Phone:</span> <span id="rc-phone">—</span></div>
+      <div><span style="color:#475569">LLM ID:</span> <span id="rc-llm-id">—</span></div>
+      <div><span style="color:#475569">Last synced:</span> <span id="rc-last-sync">—</span></div>
+      <div><span style="color:#475569">Last live:</span> <span id="rc-last-live">—</span></div>
+      <div><span style="color:#475569">Published version:</span> <span id="rc-published-ver">—</span></div>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-ghost btn-sm" id="rc-provision-btn" onclick="openProvisionModal(document.getElementById('cfg-biz-name') && document.getElementById('cfg-biz-name').value)">Provision New Agent</button>
+      <button class="btn btn-primary btn-sm" id="rc-golive-btn" onclick="goLive()" disabled>Go Live</button>
+    </div>
+  </div>
   <div class="detail-footer">
     <div class="script-preview" id="script-preview">No script generated yet &mdash; configure goals above then click Generate.</div>
     <button class="btn btn-purple" onclick="generateScript()">&#9889; Generate Script</button>
@@ -733,10 +766,28 @@
   </div>
 </div>
 
+<!-- Provision modal -->
+<div id="provision-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:500; align-items:center; justify-content:center;">
+  <div style="background:#0d1424; border:1px solid #1e293b; border-radius:12px; padding:28px; width:380px; max-width:90vw;">
+    <div style="font-size:14px; font-weight:700; color:#f8fafc; margin-bottom:20px;">Provision New Retell Agent</div>
+    <div class="field"><label>Agent Name</label><input type="text" id="prov-agent-name" placeholder="Biz Receptionist" /></div>
+    <div class="field"><label>Voice</label>
+      <select id="prov-voice-id"><option value="">Loading voices…</option></select>
+    </div>
+    <div class="field"><label>Phone Area Code (US)</label><input type="text" id="prov-area-code" maxlength="3" placeholder="e.g. 415" /></div>
+    <div id="prov-progress" style="font-size:12px; color:#94a3b8; margin:12px 0; min-height:18px;"></div>
+    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px;">
+      <button class="btn btn-ghost btn-sm" onclick="closeProvisionModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="submitProvision()">Provision Agent &amp; Number</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="alert" aria-live="polite" aria-atomic="true"></div>
 
 <script src="/js/common.js"></script>
 <script src="/js/admin.js"></script>
 <script src="/js/analytics.js"></script>
+<script src="/js/retell.js"></script>
 </body>
 </html>

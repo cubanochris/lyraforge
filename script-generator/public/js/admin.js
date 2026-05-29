@@ -185,6 +185,7 @@ async function openDetail(id) {
 
     renderBizFields(client.businessInfo || {});
     renderCfgFields(client.agentConfig || {}, retell);
+    renderRetellClientSection(client);
     loadLeadCount(id);
 
     const preview = document.getElementById('script-preview');
@@ -197,6 +198,7 @@ async function openDetail(id) {
     document.getElementById('copy-script-btn').disabled = !client.generatedScript;
     document.getElementById('push-btn').disabled = !client.generatedScript;
 
+    document.getElementById('retell-view').style.display = 'none';
     document.getElementById('pipeline-view').style.display = 'none';
     document.getElementById('detail-view').classList.add('active');
   } catch (err) {
@@ -599,12 +601,14 @@ async function deleteClient(id, name) {
 
 function showPipeline() {
   clearClientHash();
+  document.getElementById('retell-view').style.display = 'none';
   document.getElementById('pipeline-view').style.display = '';
   document.getElementById('detail-view').classList.remove('active');
   loadClients().then(renderPipeline);
 }
 
 function showAnalytics() {
+  document.getElementById('retell-view').style.display = 'none';
   document.getElementById('pipeline-view').style.display = 'none';
   document.getElementById('detail-view').classList.remove('active');
   document.getElementById('analytics-view').classList.add('active');
@@ -618,6 +622,7 @@ function showAnalytics() {
 }
 
 function showPipelineView() {
+  document.getElementById('retell-view').style.display = 'none';
   document.getElementById('analytics-view').classList.remove('active');
   document.getElementById('detail-view').classList.remove('active');
   document.getElementById('pipeline-view').style.display = '';
@@ -714,6 +719,7 @@ async function submitLogin() {
   // Show nav buttons
   document.getElementById('btn-analytics').style.display = 'block';
   document.getElementById('btn-pipeline').style.display = 'block';
+  document.getElementById('btn-retell').style.display = '';
 }
 
 // ========================================
@@ -763,5 +769,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show nav buttons
     document.getElementById('btn-analytics').style.display = 'block';
     document.getElementById('btn-pipeline').style.display = 'block';
+    document.getElementById('btn-retell').style.display = '';
   }
 });

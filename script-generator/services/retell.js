@@ -41,6 +41,69 @@ function defaultDeps(apiKey) {
   };
 }
 
+// ── New Retell API functions ────────────────────────────────────────────────
+// All accept an optional `deps` object for testing (same pattern as syncAgentToRetell).
+// When deps is omitted, live HTTP calls are made using RETELL_API_KEY from env.
+
+function buildDeps(apiKey) {
+  return {
+    listAgents:       () => retellRequest('GET', '/list-agents?is_latest=true', apiKey),
+    listPhoneNumbers: () => retellRequest('GET', '/v2/list-phone-numbers', apiKey),
+    listVoices:       () => retellRequest('GET', '/list-voices', apiKey),
+    createLlm:        (body) => retellRequest('POST', '/create-retell-llm', apiKey, body),
+    createAgent:      (body) => retellRequest('POST', '/create-agent', apiKey, body),
+    createPhoneNumber:(body) => retellRequest('POST', '/create-phone-number', apiKey, body),
+    publishAgent:     (agentId, version) => retellRequest('POST', `/publish-agent-version/${agentId}`, apiKey, { version }),
+    updatePhoneNumber:(phoneNumber, body) => retellRequest('PATCH', `/update-phone-number/${encodeURIComponent(phoneNumber)}`, apiKey, body)
+  };
+}
+
+function requireApiKey() {
+  const k = process.env.RETELL_API_KEY;
+  if (!k) throw new Error('RETELL_API_KEY is not set');
+  return k;
+}
+
+async function listAgents(deps) {
+  const d = deps || buildDeps(requireApiKey());
+  return d.listAgents();
+}
+
+async function listPhoneNumbers(deps) {
+  const d = deps || buildDeps(requireApiKey());
+  return d.listPhoneNumbers();
+}
+
+async function listVoices(deps) {
+  const d = deps || buildDeps(requireApiKey());
+  return d.listVoices();
+}
+
+async function createLlm(body, deps) {
+  const d = deps || buildDeps(requireApiKey());
+  return d.createLlm(body || {});
+}
+
+async function createAgent(body, deps) {
+  const d = deps || buildDeps(requireApiKey());
+  return d.createAgent(body);
+}
+
+async function createPhoneNumber(body, deps) {
+  const d = deps || buildDeps(requireApiKey());
+  return d.createPhoneNumber(body);
+}
+
+async function publishAgent(agentId, version, deps) {
+  const d = deps || buildDeps(requireApiKey());
+  return d.publishAgent(agentId, version);
+}
+
+async function updatePhoneNumber(phoneNumber, body, deps) {
+  const d = deps || buildDeps(requireApiKey());
+  return d.updatePhoneNumber(phoneNumber, body);
+}
+
 /**
  * Sync a client's config to its Retell LLM (the agent's response engine).
  * Updates the DRAFT LLM with general_prompt (script) and/or general_tools
@@ -101,4 +164,9 @@ async function syncAgentToRetell(client, opts = {}, deps = null) {
   return { llmId, toolsPushed, scriptPushed, agentVersion: agent.version };
 }
 
-module.exports = { syncAgentToRetell };
+module.exports = {
+  syncAgentToRetell,
+  listAgents, listPhoneNumbers, listVoices,
+  createLlm, createAgent, createPhoneNumber,
+  publishAgent, updatePhoneNumber
+};

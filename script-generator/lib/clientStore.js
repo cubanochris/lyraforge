@@ -30,7 +30,7 @@ function createClient(data) {
     clientContact: {},
     subscription: '',
     internalNotes: '',
-    goLiveDate: null,
+    goLiveDate: null,           // user-entered target date (display only)
     businessInfo: {
       businessName: '', industry: '', phone: '', location: '',
       website: '', hours: '', languages: '', services: '',
@@ -42,7 +42,7 @@ function createClient(data) {
       goals: [], tone: 'professional', maxDurationMinutes: 5,
       escalationRules: '', objectionHandlingStyle: 'soft',
       competitorHandling: '', customInstructions: '',
-      retellAgentId: '', retellPhoneNumber: '', voiceSelection: '',
+      retellAgentId: '', retellPhoneNumber: '', retellLlmId: '', voiceSelection: '',
       leadCapture: {
         enabled: true, mode: 'store',
         forwardEmail: '', forwardWebhookUrl: '', forwardSms: ''
@@ -51,6 +51,9 @@ function createClient(data) {
     generatedScript: null,
     scriptGeneratedAt: null,
     lastPushedAt: null,
+    lastSyncedAgentVersion: null,
+    lastPublishedAgentVersion: null,
+    lastGoLiveAt: null,         // ISO timestamp written by /retell-golive
     ...data,
     status: 'pending'
   };

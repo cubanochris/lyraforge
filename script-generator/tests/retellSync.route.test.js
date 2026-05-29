@@ -67,6 +67,13 @@ test('marks the client live when the script was pushed', async () => {
   expect(store.getClient(client.id).status).toBe('live');
 });
 
+test('stores lastSyncedAgentVersion when sync returns agentVersion', async () => {
+  store.updateClient(client.id, { agentConfig: { ...client.agentConfig, retellAgentId: 'agent_X' } });
+  syncAgentToRetell.mockResolvedValue({ llmId: 'llm_1', toolsPushed: true, scriptPushed: true, agentVersion: 7 });
+  await request(app).post('/api/clients/' + client.id + '/retell-sync').set('Authorization', AUTH);
+  expect(store.getClient(client.id).lastSyncedAgentVersion).toBe(7);
+});
+
 test('422 when the agent is not a retell-llm', async () => {
   store.updateClient(client.id, { agentConfig: { ...client.agentConfig, retellAgentId: 'agent_X' } });
   const err = new Error('Agent response engine is "conversation-flow"; sync supports Retell LLM agents only');
