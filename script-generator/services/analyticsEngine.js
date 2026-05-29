@@ -235,7 +235,7 @@ function getAnalyticsOverview(rangeDays = DEFAULT_RANGE_DAYS) {
 
   // Trend: compare the current range against the immediately preceding window of
   // equal length. All-time (rangeDays null) has no prior window, so trends are 0.
-  const hasPrevPeriod = rangeDays != null;
+  const hasPrevPeriod = rangeDays !== null;
   const prevTotalCalls = prevCalls.length;
   const prevDuration = prevCalls.reduce((s, c) => s + (c.duration || c.durationMs || 0), 0);
   const prevAvgDuration = prevTotalCalls > 0 ? prevDuration / prevTotalCalls : 0;

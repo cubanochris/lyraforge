@@ -17,12 +17,6 @@ function verifySignature(rawBody, signature) {
   }
 }
 
-function findClientByAgentId(agentId) {
-  return clientStore.listClients().find(
-    c => c.agentConfig && c.agentConfig.retellAgentId === agentId
-  ) || null;
-}
-
 router.post('/retell', express.raw({ type: '*/*' }), (req, res) => {
   const signature = req.headers['x-retell-signature'];
   const rawBody = Buffer.isBuffer(req.body) ? req.body : Buffer.from(JSON.stringify(req.body));
@@ -38,7 +32,7 @@ router.post('/retell', express.raw({ type: '*/*' }), (req, res) => {
   const { event, call } = payload;
   if (!call || !call.agent_id || !call.call_id) return res.sendStatus(200);
 
-  const client = findClientByAgentId(call.agent_id);
+  const client = clientStore.findClientByAgentId(call.agent_id);
   if (!client) return res.sendStatus(200);
 
   const callId = call.call_id;

@@ -55,3 +55,32 @@ test('listClients returns all clients sorted by updatedAt descending', () => {
   expect(list.length).toBe(2);
   expect(list[0].updatedAt >= list[1].updatedAt).toBe(true);
 });
+
+test('createClient seeds leadCapture defaults', () => {
+  const client = store.createClient({ clientContact: { name: 'Dana' } });
+  expect(client.agentConfig.leadCapture).toEqual({
+    enabled: true, mode: 'store', forwardEmail: '', forwardWebhookUrl: '', forwardSms: ''
+  });
+});
+
+test('findClientByAgentId returns the client whose agentConfig.retellAgentId matches', () => {
+  const a = store.createClient({ clientContact: { name: 'A' } });
+  store.updateClient(a.id, { agentConfig: { ...a.agentConfig, retellAgentId: 'agent_123' } });
+  store.createClient({ clientContact: { name: 'B' } });
+  const found = store.findClientByAgentId('agent_123');
+  expect(found && found.id).toBe(a.id);
+});
+
+test('findClientByAgentId returns null for unknown or empty agentId', () => {
+  store.createClient({ clientContact: { name: 'A' } });
+  expect(store.findClientByAgentId('nope')).toBeNull();
+  expect(store.findClientByAgentId('')).toBeNull();
+});
+
+test('createClient backfills leadCapture even when data supplies a partial agentConfig', () => {
+  const client = store.createClient({ agentConfig: { tone: 'friendly' } });
+  expect(client.agentConfig.tone).toBe('friendly');
+  expect(client.agentConfig.leadCapture).toEqual({
+    enabled: true, mode: 'store', forwardEmail: '', forwardWebhookUrl: '', forwardSms: ''
+  });
+});

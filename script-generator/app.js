@@ -22,6 +22,7 @@ const clientsRouter = require('./routes/clients');
 const retellRouter = require('./routes/retell');
 const analyticsRouter = require('./routes/analytics');
 const webhooksRouter = require('./routes/webhooks');
+const functionsRouter = require('./routes/functions');
 
 app.use('/api/webhooks', webhooksRouter);   // ← BEFORE express.json()
 app.use(express.json());                    // ← json parsing for all other routes
@@ -29,6 +30,7 @@ app.use(express.json());                    // ← json parsing for all other ro
 app.use('/api/clients', clientsRouter);
 app.use('/api/retell', retellRouter);
 app.use('/api/analytics', analyticsRouter);
+app.use('/api/functions', functionsRouter);
 
 // Admin dashboard — serve admin.html (auth checked client-side via API)
 app.get('/admin', (req, res) => {
@@ -67,6 +69,9 @@ if (require.main === module) {
     }
     if (!process.env.ALLOWED_ORIGINS) {
       console.warn('⚠️  WARNING: ALLOWED_ORIGINS is not set — CORS is open to all origins (*)\n');
+    }
+    if (!process.env.FUNCTION_SECRET) {
+      console.warn('⚠️  WARNING: FUNCTION_SECRET is not set — /api/functions/capture-lead will reject all calls\n');
     }
   });
 }

@@ -27,6 +27,7 @@ async function loadDashboard(range) {
     }
     if (!res.ok) throw new Error('Server error ' + res.status);
     render(await res.json());
+    loadLeads();
   } catch (err) {
     console.error('[dashboard]', err);
     document.getElementById('error-content').style.display = 'block';
@@ -72,5 +73,42 @@ document.querySelectorAll('.range-btn').forEach(function(btn) {
     loadDashboard(currentRange);
   });
 });
+
+async function loadLeads() {
+  try {
+    const res = await fetch('/api/clients/' + CLIENT_ID + '/leads');
+    if (!res.ok) return;
+    const data = await res.json();
+    const title = document.getElementById('leads-title');
+    const note = document.getElementById('leads-forward-note');
+    const table = document.getElementById('leads-table');
+    const tbody = document.getElementById('leads-tbody');
+    title.style.display = 'block';
+
+    if (data.mode === 'forward') {
+      note.style.display = 'block';
+      note.textContent = (data.count || 0) + ' lead(s) captured and forwarded to your destination.';
+      table.style.display = 'none';
+      return;
+    }
+    note.style.display = 'none';
+    table.style.display = 'table';
+    const leads = data.leads || [];
+    if (!leads.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="empty-cell">No leads captured yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = leads.map(function(l) {
+      return '<tr><td>' + (l.date || '—') + '</td><td>' + escLead(l.name) +
+        '</td><td>' + escLead(l.phone) + '</td><td>' + escLead(l.reason) + '</td></tr>';
+    }).join('');
+  } catch (_) { /* leads are non-critical; ignore */ }
+}
+
+function escLead(s) {
+  return String(s || '').replace(/[<>&"]/g, function(ch) {
+    return ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' })[ch];
+  });
+}
 
 loadDashboard(currentRange);

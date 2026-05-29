@@ -72,6 +72,12 @@ HARD RULES
       c.customInstructions && `Special instructions: ${c.customInstructions}`
     ].filter(Boolean).join('\n');
 
+    const leadCaptureEnabled = c.leadCapture && c.leadCapture.enabled !== false;
+    const toolSection = leadCaptureEnabled
+      ? `\n\n## Available Tool: capture_lead
+You have a tool named \`capture_lead\`. When the caller wants a callback, asks someone to reach them, or you cannot fully help them live, collect their **name** and **phone number** (and, if offered, email, the reason for their call, and a preferred callback time), then call \`capture_lead\` with those values. Confirm warmly afterward (e.g. "Got it — someone will get back to you shortly"). Do not promise an exact callback time you cannot guarantee.`
+      : '';
+
     return `Write a Retell AI agent general_prompt for this business.
 
 ## Business Details
@@ -92,7 +98,7 @@ Write the complete general_prompt now. It must cover:
 - Each goal handled in priority order with clear instructions and example spoken lines
 - Objection and hesitation handling for each major goal
 - After-hours and escalation handling if applicable
-- A short rules section at the end (response length, tone reminders, what to do when uncertain)`;
+- A short rules section at the end (response length, tone reminders, what to do when uncertain)${toolSection}`;
   }
 
   async generateScript(options) {
@@ -104,7 +110,8 @@ Write the complete general_prompt now. It must cover:
       customInstructions = '',
       escalationRules = '',
       competitorHandling = '',
-      objectionHandlingStyle = 'neutral'
+      objectionHandlingStyle = 'neutral',
+      leadCapture = null
     } = options;
 
     if (selectedGoals.length === 0) {
@@ -117,7 +124,7 @@ Write the complete general_prompt now. It must cover:
     const prompt = this.buildUserPrompt({
       goals: orderedGoals,
       business: businessData,
-      agentConfig: { tone, maxDurationMinutes, escalationRules, competitorHandling, objectionHandlingStyle, customInstructions }
+      agentConfig: { tone, maxDurationMinutes, escalationRules, competitorHandling, objectionHandlingStyle, customInstructions, leadCapture }
     });
 
     const scriptText = await this.callClaude(prompt);

@@ -185,6 +185,7 @@ async function openDetail(id) {
 
     renderBizFields(client.businessInfo || {});
     renderCfgFields(client.agentConfig || {}, retell);
+    loadLeadCount(id);
 
     const preview = document.getElementById('script-preview');
     if (client.generatedScript) {
@@ -316,6 +317,20 @@ function renderCfgFields(c, retell) {
     voiceField = '<select id="cfg-voice">' + VOICES.map(function(v) { return '<option' + (c.voiceSelection === v ? ' selected' : '') + '>' + v + '</option>'; }).join('') + '</select>';
   }
 
+  const lc = c.leadCapture || { enabled: true, mode: 'store', forwardEmail: '', forwardWebhookUrl: '', forwardSms: '' };
+  const leadCaptureHtml =
+    '<div class="field"><label>Lead Capture</label>' +
+      '<select id="cfg-lc-enabled"><option value="true"' + (lc.enabled !== false ? ' selected' : '') + '>Enabled</option>' +
+      '<option value="false"' + (lc.enabled === false ? ' selected' : '') + '>Disabled</option></select></div>' +
+    '<div class="field"><label>Lead Handling Mode</label>' +
+      '<select id="cfg-lc-mode"><option value="store"' + (lc.mode !== 'forward' ? ' selected' : '') + '>Store (client dashboard; we keep counts only for you)</option>' +
+      '<option value="forward"' + (lc.mode === 'forward' ? ' selected' : '') + '>Forward &amp; forget (no content stored)</option></select></div>' +
+    '<div class="field"><label>Forward: Email</label><input type="text" id="cfg-lc-email" value="' + escHtml(lc.forwardEmail || '') + '" placeholder="leads@client.com" /></div>' +
+    '<div class="field"><label>Forward: Webhook URL (https)</label><input type="text" id="cfg-lc-webhook" value="' + escHtml(lc.forwardWebhookUrl || '') + '" placeholder="https://hooks..." /></div>' +
+    '<div class="field"><label>Forward: SMS Number</label><input type="text" id="cfg-lc-sms" value="' + escHtml(lc.forwardSms || '') + '" placeholder="+15551234567" /></div>' +
+    '<div class="field"><button class="btn btn-ghost btn-sm" type="button" onclick="showRetellTool()">Show Retell tool config</button> ' +
+      '<span id="lead-count" style="color:#94a3b8; font-size:12px; margin-left:8px"></span></div>';
+
   document.getElementById('cfg-fields').innerHTML =
     '<div class="field"><label>Call Goals (click to toggle)</label><div class="goals-list" id="goals-list">' + goalsHtml + '</div></div>' +
     '<div class="field"><label>Tone</label><select id="cfg-tone">' + TONES.map(function(t) { return '<option' + (c.tone === t ? ' selected' : '') + '>' + t + '</option>'; }).join('') + '</select></div>' +
@@ -326,7 +341,8 @@ function renderCfgFields(c, retell) {
     '<div class="field"><label>Custom Instructions</label><textarea id="cfg-custom" rows="3">' + escHtml(c.customInstructions || '') + '</textarea></div>' +
     '<div class="field"><label>Retell Agent</label>' + agentField + '</div>' +
     '<div class="field"><label>Phone Number</label>' + phoneField + '</div>' +
-    '<div class="field"><label>Voice</label>' + voiceField + '</div>';
+    '<div class="field"><label>Voice</label>' + voiceField + '</div>' +
+    leadCaptureHtml;
 }
 
 function toggleGoal(goal, el) {
@@ -360,7 +376,14 @@ function collectCfgFields() {
     customInstructions: document.getElementById('cfg-custom') ? document.getElementById('cfg-custom').value : '',
     retellAgentId: document.getElementById('cfg-retell-id') ? document.getElementById('cfg-retell-id').value : '',
     retellPhoneNumber: document.getElementById('cfg-retell-phone') ? document.getElementById('cfg-retell-phone').value : '',
-    voiceSelection: document.getElementById('cfg-voice') ? document.getElementById('cfg-voice').value : ''
+    voiceSelection: document.getElementById('cfg-voice') ? document.getElementById('cfg-voice').value : '',
+    leadCapture: {
+      enabled: (document.getElementById('cfg-lc-enabled') || {}).value !== 'false',
+      mode: (document.getElementById('cfg-lc-mode') || {}).value || 'store',
+      forwardEmail: (document.getElementById('cfg-lc-email') || {}).value || '',
+      forwardWebhookUrl: (document.getElementById('cfg-lc-webhook') || {}).value || '',
+      forwardSms: (document.getElementById('cfg-lc-sms') || {}).value || ''
+    }
   };
 }
 
@@ -443,6 +466,33 @@ function copyScript() {
 // ========================================
 // CALL LOG
 // ========================================
+
+async function loadLeadCount(id) {
+  const el = document.getElementById('lead-count');
+  if (!el) return;
+  try {
+    const res = await fetch('/api/clients/' + id + '/leads/count', { headers: { 'Authorization': authHeader() } });
+    if (!res.ok) { el.textContent = ''; return; }
+    const data = await res.json();
+    el.textContent = 'Leads captured: ' + data.count +
+      (data.forwardFailed ? ' (' + data.forwardFailed + ' failed to forward — needs recovery)' : '');
+  } catch (_) { el.textContent = ''; }
+}
+
+async function showRetellTool() {
+  try {
+    const res = await fetch('/api/clients/' + currentClientId + '/retell-tool', { headers: { 'Authorization': authHeader() } });
+    if (!res.ok) { showToast('Could not load tool config', 'error'); return; }
+    const tool = await res.json();
+    const json = JSON.stringify(tool, null, 2);
+    navigator.clipboard.writeText(json).then(function() {
+      showToast('Tool config copied — paste into the Retell dashboard', 'success');
+    });
+    window.prompt('Retell custom tool config (copied to clipboard):', json);
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+  }
+}
 
 async function showCallLog() {
   document.getElementById('calllog-modal').classList.add('active');

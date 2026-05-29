@@ -42,7 +42,11 @@ function createClient(data) {
       goals: [], tone: 'professional', maxDurationMinutes: 5,
       escalationRules: '', objectionHandlingStyle: 'soft',
       competitorHandling: '', customInstructions: '',
-      retellAgentId: '', retellPhoneNumber: '', voiceSelection: ''
+      retellAgentId: '', retellPhoneNumber: '', voiceSelection: '',
+      leadCapture: {
+        enabled: true, mode: 'store',
+        forwardEmail: '', forwardWebhookUrl: '', forwardSms: ''
+      }
     },
     generatedScript: null,
     scriptGeneratedAt: null,
@@ -50,6 +54,13 @@ function createClient(data) {
     ...data,
     status: 'pending'
   };
+  // Guarantee leadCapture defaults survive even if `data` supplied a partial agentConfig.
+  client.agentConfig = client.agentConfig || {};
+  if (!client.agentConfig.leadCapture) {
+    client.agentConfig.leadCapture = {
+      enabled: true, mode: 'store', forwardEmail: '', forwardWebhookUrl: '', forwardSms: ''
+    };
+  }
   writeFile(client);
   return client;
 }
@@ -82,4 +93,11 @@ function deleteClient(id) {
   return true;
 }
 
-module.exports = { createClient, getClient, updateClient, listClients, deleteClient };
+function findClientByAgentId(agentId) {
+  if (!agentId) return null;
+  return listClients().find(
+    c => c.agentConfig && c.agentConfig.retellAgentId === agentId
+  ) || null;
+}
+
+module.exports = { createClient, getClient, updateClient, listClients, deleteClient, findClientByAgentId };

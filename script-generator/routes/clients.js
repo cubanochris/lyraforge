@@ -3,6 +3,8 @@ const router = express.Router();
 const { adminAuth, isAdmin } = require('../middleware/auth');
 const store = require('../lib/clientStore');
 const callStore = require('../lib/callStore');
+const { buildCaptureLeadTool } = require('../services/retellToolConfig');
+const leadStore = require('../lib/leadStore');
 
 const TIER_RATES = { 'Starter': 497, 'Professional': 997, 'Business Pro': 1997, 'Enterprise': 3997 };
 
@@ -76,6 +78,24 @@ router.get('/:id/usage', (req, res) => {
   });
 });
 
+// GET /api/clients/:id/leads — public (UUID-gated). store mode → content; forward mode → count only.
+router.get('/:id/leads', (req, res) => {
+  const client = store.getClient(req.params.id);
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  const lc = (client.agentConfig && client.agentConfig.leadCapture) || {};
+  if (lc.mode === 'forward') {
+    return res.json({ mode: 'forward', count: leadStore.count(req.params.id) });
+  }
+  const leads = leadStore.list(req.params.id, 100)
+    .filter(l => !l.forwarded)
+    .map(l => ({
+      date: l.capturedAt ? l.capturedAt.split('T')[0] : null,
+      name: l.name || '', phone: l.phone || '',
+      reason: l.reason || '', preferredCallback: l.preferredCallback || ''
+    }));
+  res.json({ mode: 'store', leads });
+});
+
 // GET /api/clients/:id — full data for admin, public fields only otherwise
 router.get('/:id', (req, res) => {
   const client = store.getClient(req.params.id);
@@ -99,7 +119,16 @@ router.put('/:id', (req, res) => {
     // Merge top-level fields, deep-merge businessInfo and agentConfig
     const fields = { ...req.body };
     if (fields.businessInfo) fields.businessInfo = { ...client.businessInfo, ...fields.businessInfo };
-    if (fields.agentConfig) fields.agentConfig = { ...client.agentConfig, ...fields.agentConfig };
+    if (fields.agentConfig) {
+      fields.agentConfig = { ...client.agentConfig, ...fields.agentConfig };
+      if (req.body.agentConfig.leadCapture) {
+        const lc = { ...(client.agentConfig.leadCapture || {}), ...req.body.agentConfig.leadCapture };
+        if (lc.mode === 'forward' && !lc.forwardEmail && !lc.forwardWebhookUrl && !lc.forwardSms) {
+          return res.status(400).json({ error: 'Forward mode requires at least one destination (email, webhook URL, or SMS number)' });
+        }
+        fields.agentConfig.leadCapture = lc;
+      }
+    }
     updated = store.updateClient(req.params.id, fields);
   } else {
     // Client: only businessInfo, force status to 'review'
@@ -135,7 +164,8 @@ router.post('/:id/generate', adminAuth, async (req, res) => {
       escalationRules: cfg.escalationRules || '',
       competitorHandling: cfg.competitorHandling || '',
       objectionHandlingStyle: cfg.objectionHandlingStyle || 'neutral',
-      customInstructions: cfg.customInstructions || ''
+      customInstructions: cfg.customInstructions || '',
+      leadCapture: cfg.leadCapture || null
     });
 
     const updated = store.updateClient(client.id, {
@@ -188,6 +218,30 @@ router.get('/:id/calls', adminAuth, (req, res) => {
   const client = store.getClient(req.params.id);
   if (!client) return res.status(404).json({ error: 'Client not found' });
   res.json(callStore.listCalls(req.params.id));
+});
+
+// GET /api/clients/:id/retell-tool — copyable capture_lead tool config (admin only)
+router.get('/:id/retell-tool', adminAuth, (req, res) => {
+  const client = store.getClient(req.params.id);
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const secret = process.env.FUNCTION_SECRET || 'SET_FUNCTION_SECRET';
+  res.json(buildCaptureLeadTool(client, { baseUrl, secret }));
+});
+
+// GET /api/clients/:id/leads/count — admin only: total + forward-failure count
+router.get('/:id/leads/count', adminAuth, (req, res) => {
+  const client = store.getClient(req.params.id);
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  const all = leadStore.list(req.params.id, 100000);
+  res.json({ count: all.length, forwardFailed: all.filter(l => l.forwardFailed).length });
+});
+
+// GET /api/clients/:id/leads/failed — admin only: flagged forward failures (with content) for recovery
+router.get('/:id/leads/failed', adminAuth, (req, res) => {
+  const client = store.getClient(req.params.id);
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  res.json(leadStore.list(req.params.id, 100000).filter(l => l.forwardFailed));
 });
 
 module.exports = router;

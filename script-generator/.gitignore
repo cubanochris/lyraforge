@@ -2,4 +2,5 @@
 .env
 data/clients/
 data/calls/
+data/leads/
 *.log
