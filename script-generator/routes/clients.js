@@ -193,8 +193,8 @@ router.post('/:id/push', adminAuth, async (req, res) => {
   }
 
   try {
-    const { pushScriptToRetell } = require('../services/retell');
-    await pushScriptToRetell(client.agentConfig.retellAgentId, client.generatedScript);
+    const { syncAgentToRetell } = require('../services/retell');
+    await syncAgentToRetell(client, { includeScript: true, includeLeadTool: false });
     const updated = store.updateClient(client.id, {
       lastPushedAt: new Date().toISOString(),
       status: 'live'
@@ -202,6 +202,7 @@ router.post('/:id/push', adminAuth, async (req, res) => {
     res.json({ success: true, client: updated });
   } catch (err) {
     console.error('[push]', err);
+    if (err.code === 'UNSUPPORTED_ENGINE') return res.status(422).json({ error: err.message });
     res.status(500).json({ error: err.message });
   }
 });
@@ -227,6 +228,43 @@ router.get('/:id/retell-tool', adminAuth, (req, res) => {
   const baseUrl = `${req.protocol}://${req.get('host')}`;
   const secret = process.env.FUNCTION_SECRET || 'SET_FUNCTION_SECRET';
   res.json(buildCaptureLeadTool(client, { baseUrl, secret }));
+});
+
+// POST /api/clients/:id/retell-sync — push script + capture_lead tool to the agent's Retell LLM (admin only)
+router.post('/:id/retell-sync', adminAuth, async (req, res) => {
+  const client = store.getClient(req.params.id);
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  if (!client.agentConfig || !client.agentConfig.retellAgentId) {
+    return res.status(400).json({ error: 'Set the Retell Agent ID first' });
+  }
+  if (!process.env.FUNCTION_SECRET) {
+    return res.status(400).json({ error: 'Set FUNCTION_SECRET before pushing — the tool needs it as its bearer' });
+  }
+  try {
+    const { syncAgentToRetell } = require('../services/retell');
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const result = await syncAgentToRetell(client, {
+      includeScript: true,
+      includeLeadTool: true,
+      baseUrl,
+      secret: process.env.FUNCTION_SECRET
+    });
+    if (result.scriptPushed) {
+      store.updateClient(client.id, { lastPushedAt: new Date().toISOString(), status: 'live' });
+    }
+    res.json({
+      ok: true,
+      llmId: result.llmId,
+      toolsPushed: result.toolsPushed,
+      scriptPushed: result.scriptPushed,
+      agentVersion: result.agentVersion,
+      note: 'Synced to the Retell LLM draft. Publish in Retell\'s Deployment tab (and point the phone number at the new version) to go live.'
+    });
+  } catch (err) {
+    console.error('[retell-sync]', err);
+    if (err.code === 'UNSUPPORTED_ENGINE' || err.code === 'NOTHING_TO_SYNC') return res.status(422).json({ error: err.message });
+    res.status(502).json({ error: err.message });
+  }
 });
 
 // GET /api/clients/:id/leads/count — admin only: total + forward-failure count

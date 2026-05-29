@@ -4,6 +4,7 @@ function buildCaptureLeadTool(client, { baseUrl, secret }) {
   return {
     type: 'custom',
     name: 'capture_lead',
+    method: 'POST',
     description: "Collect the caller's contact details when they want a callback or " +
       "cannot be helped live. Call this once you have at least the caller's name and phone number.",
     speak_during_execution: false,

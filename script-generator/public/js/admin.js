@@ -479,6 +479,33 @@ async function loadLeadCount(id) {
   } catch (_) { el.textContent = ''; }
 }
 
+async function pushToRetell() {
+  if (!currentClientId) return;
+  showToast('Pushing to Retell…', 'info');
+  try {
+    const res = await fetch('/api/clients/' + currentClientId + '/retell-sync', {
+      method: 'POST',
+      headers: { 'Authorization': authHeader() }
+    });
+    const data = await res.json().catch(function() { return {}; });
+    if (!res.ok) {
+      if (res.status === 401) { submitLogin(); return; }
+      showToast(data.error || 'Push failed', 'error');
+      return;
+    }
+    const parts = [];
+    if (data.scriptPushed) parts.push('script');
+    if (data.toolsPushed) parts.push('capture_lead tool');
+    showToast('Pushed ' + (parts.join(' + ') || 'config') + ' to Retell. ' + (data.note || ''), 'success');
+    if (data.scriptPushed) {
+      const pill = document.getElementById('detail-status-pill');
+      if (pill) { pill.textContent = 'LIVE'; pill.className = 'status-pill pill-live'; }
+    }
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+  }
+}
+
 async function showRetellTool() {
   try {
     const res = await fetch('/api/clients/' + currentClientId + '/retell-tool', { headers: { 'Authorization': authHeader() } });
@@ -536,30 +563,6 @@ function renderCallLog(calls) {
       '<div><div class="call-row-label">SUMMARY</div><div class="call-summary">' + summary + '</div></div>' +
       '</div>';
   }).join('');
-}
-
-// ========================================
-// RETELL INTEGRATION
-// ========================================
-
-async function pushToRetell() {
-  try {
-    const res = await fetch('/api/clients/' + currentClientId + '/push', {
-      method: 'POST', headers: { 'Authorization': authHeader() }
-    });
-    const data = await res.json().catch(function() { return {}; });
-    if (!res.ok) {
-      if (res.status === 401) { submitLogin(); return; }
-      showToast(data.error || 'Push to Retell failed', 'error');
-      return;
-    }
-    showToast('Pushed to Retell — agent is live!', 'success');
-    document.getElementById('detail-status-pill').textContent = 'LIVE';
-    document.getElementById('detail-status-pill').className = 'status-pill pill-live';
-  } catch (err) {
-    console.error('[pushToRetell]', err);
-    showToast('Error pushing to Retell: ' + err.message, 'error');
-  }
 }
 
 // ========================================
