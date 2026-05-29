@@ -9,9 +9,13 @@ function authOk(req) {
   const header = req.headers['authorization'] || '';
   const [type, token] = header.split(' ');
   if (type !== 'Bearer' || !token || !process.env.FUNCTION_SECRET) return false;
+  // Trim both sides: env vars frequently pick up a trailing newline/space on
+  // paste, which would otherwise fail the exact-length comparison below.
+  const a = token.trim();
+  const b = process.env.FUNCTION_SECRET.trim();
   try {
-    return token.length === process.env.FUNCTION_SECRET.length &&
-      crypto.timingSafeEqual(Buffer.from(token), Buffer.from(process.env.FUNCTION_SECRET));
+    return a.length === b.length &&
+      crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
   } catch (_) {
     return false;
   }

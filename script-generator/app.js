@@ -72,6 +72,9 @@ if (require.main === module) {
     }
     if (!process.env.FUNCTION_SECRET) {
       console.warn('⚠️  WARNING: FUNCTION_SECRET is not set — /api/functions/capture-lead will reject all calls\n');
+    } else {
+      const fs = process.env.FUNCTION_SECRET;
+      console.log(`   FUNCTION_SECRET diag: raw length ${fs.length}, trimmed length ${fs.trim().length}\n`);
     }
   });
 }
